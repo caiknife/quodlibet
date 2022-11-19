@@ -1,6 +1,7 @@
 # Copyright 2015    Christoph Reiter
-#           2016-20 Nick Boultbee
+#           2016-22 Nick Boultbee
 #           2019    Peter Strulo
+#           2022    Jej@github
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,6 +79,41 @@ def int_config(section, option, label, tooltip):
     return _config(section, option, label, tooltip, getter)
 
 
+def slider_config(section, option, label, tooltip, lower=0, upper=1,
+                 on_change_callback=None, label_value_callback=None):
+    def on_reverted(*args):
+        config.reset(section, option)
+        scale.set_value(config.getfloat(section, option))
+
+    def on_change(scale):
+        value = scale.get_value()
+        if on_change_callback:
+            value = on_change_callback(value)
+        scale.set_value(value)
+        config.set(section, option, value)
+
+    default = config.getfloat(section, option)
+
+    scale = Gtk.HScale.new(Gtk.Adjustment(
+                                       value=default,
+                                       lower=lower, upper=upper))
+    scale.set_value_pos(Gtk.PositionType.LEFT)
+    scale.set_show_fill_level(True)
+    scale.set_tooltip_text(_(tooltip))
+
+    if label_value_callback:
+        scale.connect('format-value', lambda _, value: label_value_callback(value))
+    scale.connect('value-changed', on_change)
+
+    revert = Gtk.Button()
+    revert.add(Gtk.Image.new_from_icon_name(Icons.DOCUMENT_REVERT, Gtk.IconSize.BUTTON))
+    revert.connect("clicked", on_reverted)
+
+    lbl = Gtk.Label(label=label, use_underline=True)
+    lbl.set_mnemonic_widget(scale)
+    return lbl, scale, revert
+
+
 class AdvancedPreferences(EventPlugin):
     PLUGIN_ID = "Advanced Preferences"
     PLUGIN_NAME = _("Advanced Preferences")
@@ -112,6 +148,10 @@ class AdvancedPreferences(EventPlugin):
                 "Search tags:",
                 ("Tags which get searched in addition to "
                  "the ones present in the song list. Separate with \",\"")),
+            text_config("editing", "multi_line_tags",
+                        "Multi-line tags:",
+                        ("Tags to consider as multi-line (delimited by \\n) "
+                         "rather than multi-valued (comma-separated)")),
             text_config("settings", "rating_symbol_full", "Rating symbol (full):"),
             text_config("settings", "rating_symbol_blank", "Rating symbol (blank):"),
             text_config(
@@ -138,8 +178,8 @@ class AdvancedPreferences(EventPlugin):
                  "(restart required)")),
             text_config(
                 "settings", "datecolumn_timestamp_format",
-                "DateColumn timestamp format",
-                "A timestamp format, e.g. %Y%m%d %X "),
+                "DateColumn timestamp format:",
+                "A timestamp format, e.g. %Y%m%d %X"),
             text_config(
                 "settings", "scrollbar_always_visible",
                 "Scrollbars always visible:",
@@ -153,7 +193,7 @@ class AdvancedPreferences(EventPlugin):
                 "(restart required)"),
             text_config(
                 "settings", "query_font_size",
-                "Search input font size",
+                "Search input font size:",
                 "Size to apply to the search query entry, "
                 "in any Pango CSS units, e.g. '100%', '1rem'. (restart required)"),
             boolean_config(
@@ -162,12 +202,39 @@ class AdvancedPreferences(EventPlugin):
                 "It's not the default on win/macOS (restart required)"),
             text_config(
                 "browsers", "ignored_characters",
-                "Ignored characters: ",
+                "Ignored characters:",
                 "Characters to ignore in queries"),
             boolean_config(
                 "settings", "plugins_window_on_top",
-                "Plugin window on top: ",
-                "Toggles whether the plugin window appears on top of others")
+                "Plugin window on top:",
+                "Toggles whether the plugin window appears on top of others"),
+            int_config(
+                "autosave", "queue_interval",
+                "Queue autosave interval:",
+                ("Longest time between play queue auto-saves, or 0 for disabled. "
+                 "(restart required)")),
+            int_config(
+                "browsers", "searchbar_historic_entries",
+                "Number of history entries in the search bar:",
+                "8 by default (restart advised)"),
+            int_config(
+                "browsers", "searchbar_enqueue_limit",
+                "Search bar confirmation limit for enqueue:",
+                ("Maximal size of the song list that can be enqueued from "
+                 "the search bar without confirmation.")),
+            slider_config(
+                "player", "playcount_minimum_length_proportion",
+                "Minimum length proportion to consider a track as played:",
+                ("Consider a track played after listening to this proportion of "
+                 "its total duration"),
+                label_value_callback=lambda value: f"{int(value * 100)}%"),
+            text_config(
+                "browsers", "missing_title_template",
+                "Missing title template string:",
+                ("Template for building title of tracks when title tag is missing. "
+                 "Tags are allowed, like <~basename> <~dirname> <~format> <~length> "
+                 "<~#bitrate>, etc. See tags documentation for details.")
+            )
         ]
 
         for (row, (label, widget, button)) in enumerate(rows):

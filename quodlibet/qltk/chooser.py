@@ -14,7 +14,7 @@ from senf import fsnative, path2fsn, fsn2bytes, bytes2fsn
 from quodlibet import _
 from quodlibet import config
 from quodlibet.qltk import get_top_parent, gtk_version
-from quodlibet.util.path import fsn2glib, glib2fsn, get_home_dir
+from quodlibet.util.path import get_home_dir
 from quodlibet.util import is_windows
 
 
@@ -75,7 +75,7 @@ def _run_chooser(parent, chooser):
         List[fsnative]
     """
 
-    chooser.set_current_folder(fsn2glib(get_current_dir()))
+    chooser.set_current_folder(get_current_dir())
     chooser.set_transient_for(get_top_parent(parent))
 
     if _response is not None:
@@ -86,11 +86,11 @@ def _run_chooser(parent, chooser):
         response = chooser.run()
 
     if response == Gtk.ResponseType.ACCEPT:
-        result = [glib2fsn(fn) for fn in chooser.get_filenames()]
+        result = [fn for fn in chooser.get_filenames()]
 
         current_dir = chooser.get_current_folder()
         if current_dir:
-            set_current_dir(glib2fsn(current_dir))
+            set_current_dir(current_dir)
     else:
         result = []
     chooser.destroy()
@@ -170,11 +170,11 @@ def create_chooser_filter(name, patterns):
     filter_ = Gtk.FileFilter()
     filter_.set_name(name)
     for pattern in sorted(set(patterns)):
-        filter_.add_pattern(fsn2glib(path2fsn(pattern)))
+        filter_.add_pattern(path2fsn(pattern))
     return filter_
 
 
-def choose_folders(parent, title, action_title):
+def choose_folders(parent, title, action_title, allow_multiple=True):
     """Opens a folder chooser widget and returns a list of folders selected.
 
     Args:
@@ -189,7 +189,7 @@ def choose_folders(parent, title, action_title):
     chooser.set_title(title)
     chooser.set_action(Gtk.FileChooserAction.SELECT_FOLDER)
     chooser.set_local_only(True)
-    chooser.set_select_multiple(True)
+    chooser.set_select_multiple(allow_multiple)
 
     return _run_chooser(parent, chooser)
 
@@ -243,7 +243,7 @@ def choose_target_file(parent, title, action_title, name_suggestion=None):
 
 
 def choose_target_folder(parent, title, action_title, name_suggestion=None):
-    """Opens a file chooser for saving a file.
+    """Opens a file chooser for choosing a directory.
 
     Args:
         parent (Gtk.Widget)

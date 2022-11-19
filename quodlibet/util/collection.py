@@ -1,6 +1,6 @@
 # Copyright 2004-2013 Joe Wreschnig, Michael Urman, Iñigo Serna,
 #                     Christoph Reiter, Steven Robertson
-#           2011-2021 Nick Boultbee
+#           2011-2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@ import random
 from typing import Any
 from urllib.parse import quote
 
-from senf import fsnative, fsn2bytes, bytes2fsn, path2fsn, _fsnative
+from senf import fsnative, fsn2bytes, bytes2fsn, path2fsn, _fsnative, uri2fsn, fsn2uri
 
 from quodlibet import ngettext, _
 from quodlibet import util
@@ -24,6 +24,8 @@ from quodlibet.formats._audio import (TAG_TO_SORT, NUMERIC_ZERO_DEFAULT,
                                       AudioFile, HasKey)
 from quodlibet.formats._audio import PEOPLE as _PEOPLE
 from quodlibet.pattern import Pattern
+from quodlibet.const import QL_NAMESPACE
+
 try:
     from collections import abc
 except ImportError:
@@ -349,8 +351,8 @@ class Playlist(Collection, abc.Iterable, HasKey):
             return ngettext(
                 "%(title)s and %(count)d more",
                 "%(title)s and %(count)d more",
-                len(songs) - 1) % ({'title': songs[0].comma("title"),
-                                    'count': len(songs) - 1})
+                len(songs) - 1) % ({"title": songs[0].comma("title"),
+                                    "count": len(songs) - 1})
 
     def __init__(self, name: str, songs_lib=None, pl_lib=None):
         super().__init__()
@@ -367,7 +369,7 @@ class Playlist(Collection, abc.Iterable, HasKey):
         self.pl_lib = pl_lib
         # Libraries are dict-like so falsey if empty
         if self.pl_lib is None:
-            print_w("Playlist initialised without library")
+            print_d(f"Playlist {name!r} initialised without library")
         else:
             self.pl_lib.add([self])
         self.__inhibit_library_signals = False
@@ -624,9 +626,9 @@ class FileBackedPlaylist(Playlist):
                          % (base, last_error))
 
     @classmethod
-    def from_songs(cls, dir_, songs, songs_lib=None, pl_lib=None):
+    def from_songs(cls, dir_, songs, title=None, songs_lib=None, pl_lib=None):
         assert isinstance(dir_, fsnative)
-        title = cls.suggested_name_for(songs)
+        title = title or cls.suggested_name_for(songs)
         playlist = cls.new(dir_, title, songs_lib=songs_lib, pl_lib=pl_lib)
         playlist.extend(songs)
         return playlist
@@ -677,9 +679,12 @@ class FileBackedPlaylist(Playlist):
 
 
 class XSPFBackedPlaylist(FileBackedPlaylist):
+    _VERSION: int = 2
+    """Persistence version"""
+
     EXT = "xspf"
     CREATOR_PATTERN = Pattern("<artist|<artist>|<~people>>")
-    _SAFER = {c: quote(c, safe='')
+    _SAFER = {c: quote(c, safe="")
               for c in ("\\/:*?\"<>|" if is_windows() else "\0/")}
 
     @classmethod
@@ -707,13 +712,32 @@ class XSPFBackedPlaylist(FileBackedPlaylist):
         try:
             tree = ET.parse(self.path)
             # TODO: validate some top-level tag data
-            node = tree.find("title")
-            if self.name != node.text:
-                print_w("Playlist was named %r in XML instead of %r at %r"
-                        % (node.text, self.name, self.path))
-            for node in tree.iterfind('.//track'):
-                location = node.findtext('location').strip()
-                path = location.replace('\n', '').replace('\r', '')
+
+            root = tree.getroot()
+            if root.tag == "playlist":
+                ns_mapping = None
+                print_w(f"Using legacy namespace for import of {self.path}")
+            elif root.tag == "{" + XSPF_NS + "}playlist":
+                # Try correct format first
+                ns_mapping = {"": XSPF_NS}
+            else:
+                raise ValueError(f"Unknown playlist root of {root.tag}")
+            node = root.find("title", namespaces=ns_mapping)
+            if node is None:
+                print_w(f"No <title> found in {self.path} "
+                        f"(Got nodes: {[el.tag for el in root.iter()]})")
+            elif self.name != node.text:
+                print_w(f"Playlist was named {node.text!r} in XML "
+                        f"instead of {self.name!r} at {self.path!r}")
+
+            for node in tree.iterfind(".//track", namespaces=ns_mapping):
+                location = node.findtext("location", namespaces=ns_mapping).strip()
+                path = location.replace("\n", "").replace("\r", "")
+                try:
+                    # TODO: process relative URIs too?
+                    path = uri2fsn(path)
+                except ValueError:
+                    pass
                 if path in library:
                     self._list.append(library[path])
                 elif library and library.masked(path):
@@ -726,7 +750,7 @@ class XSPFBackedPlaylist(FileBackedPlaylist):
                             % (path, self.path, node_dump))
                     self._list.append(path)
                     library.mask(path)
-        except ET.ParseError as e:
+        except (ET.ParseError, ValueError) as e:
             print_w("Couldn't load %r (%s)" % (self.path, e))
 
     @classmethod
@@ -739,33 +763,40 @@ class XSPFBackedPlaylist(FileBackedPlaylist):
     @classmethod
     def name_for(cls, file_path: _fsnative) -> str:
         filename, ext = splitext(unescape_filename(file_path))
-        if not ext or ext.lower() != (".%s" % cls.EXT):
-            raise TypeError("XSPFs should end in '.%s', not '%s'"
-                            % (cls.EXT, ext))
+        if not ext or ext.lower() != f".{cls.EXT}":
+            raise TypeError(f"XSPFs should end in '{cls.EXT}', not {ext}")
         return filename
 
     def write(self):
         track_list = Element("trackList")
+        # TODO: ditch for proper indent, once we have Python 3.9
+        track_list.text = "\n"
         for song in self._list:
             if isinstance(song, str):
-                track = {"location": song}
+                track = {"location": fsn2uri(song)}
             else:
                 creator = self.CREATOR_PATTERN.format(song)
+                mbid = song("musicbrainz_trackid")
                 track = {
-                    "location": song("~filename"),
+                    "location": song("~uri"),
+                    "identifier": (f"https://musicbrainz.org/recording/{mbid}"
+                                   if mbid else None),
                     "title": song("title"),
                     "creator": creator,
                     "album": song("album"),
                     "trackNum": song("~#track"),
                     "duration": int(song("~#length") * 1000.)
                 }
-            track_list.append(self._element_from("track", track))
-        playlist = Element("playlist", attrib={"version": "1"})
+            track_list.append(self._element_from("track", track, True))
+        playlist = Element("playlist", attrib={"version": "1", "xmlns": XSPF_NS})
+        # Be kind to cat, git, editors etc. by leaving a final newline
+        playlist.tail = "\n"
+        playlist.append(self._version_tag())
         playlist.append(self._text_element("title", self.name))
         playlist.append(self._text_element("date", datetime.now().isoformat()))
         playlist.append(track_list)
         tree = ElementTree(playlist)
-        ET.register_namespace('', XSPF_NS)
+        ET.register_namespace("", XSPF_NS)
         path = self.path
         print_d(f"Writing {path !r}")
         tree.write(path, encoding="utf-8", xml_declaration=True)
@@ -774,13 +805,21 @@ class XSPFBackedPlaylist(FileBackedPlaylist):
             self._last_fn = path
 
     @classmethod
+    def _version_tag(cls):
+        """Currently this isn't needed (version 2 is detected),
+        but it probably will be and easier to know than to guess"""
+        meta = Element("meta", attrib={"rel": f"{QL_NAMESPACE}/playlists/version"})
+        meta.text = str(cls._VERSION)
+        return meta
+
+    @classmethod
     def _text_element(cls, name: str, value: Any) -> Element:
-        el = Element("%s" % name)
+        el = Element(name)
         el.text = str(value)
         return el
 
     @classmethod
-    def _element_from(cls, name: str, d: dict) -> Element:
+    def _element_from(cls, name: str, d: dict, with_newline: bool = False) -> Element:
         """Converts a dict to XML etree. Removes falsey nodes"""
         out = Element(name)
         for k, v in d.items():
@@ -789,4 +828,6 @@ class XSPFBackedPlaylist(FileBackedPlaylist):
                            if isinstance(v, dict)
                            else cls._text_element(k, v))
                 out.append(element)
+        if with_newline:
+            out.tail = "\n"
         return out

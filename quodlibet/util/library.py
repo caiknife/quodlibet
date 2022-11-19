@@ -1,5 +1,5 @@
-# Copyright 2004-2017 Joe Wreschnig, Michael Urman, Iñigo Serna,
-#     Christoph Reiter, Nick Boultbee
+# Copyright 2004-2017 Joe Wreschnig, Michael Urman, Iñigo Serna, Christoph Reiter
+#           2013-2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -7,8 +7,10 @@
 # (at your option) any later version.
 
 import re
+import os
+from typing import Iterable
 
-from senf import fsn2bytes, bytes2fsn, fsnative, expanduser
+from senf import fsn2bytes, bytes2fsn, fsnative
 
 from quodlibet import _
 from quodlibet import app
@@ -68,7 +70,7 @@ def get_scan_dirs():
     """
 
     joined_paths = bytes2fsn(config.getbytes("settings", "scan"), "utf-8")
-    return [expanduser(p) for p in split_scan_dirs(joined_paths)]
+    return [os.path.expanduser(p) for p in split_scan_dirs(joined_paths)]
 
 
 def set_scan_dirs(dirs):
@@ -87,16 +89,12 @@ def set_scan_dirs(dirs):
     config.setbytes("settings", "scan", fsn2bytes(joined, "utf-8"))
 
 
-def get_exclude_dirs():
-    """Returns a list of paths which should be ignored during scanning
-
-    Returns:
-        list
-    """
+def get_exclude_dirs() -> Iterable[fsnative]:
+    """:return: a list of paths which should be ignored during scanning"""
 
     paths = split_scan_dirs(
         bytes2fsn(config.getbytes("library", "exclude"), "utf-8"))
-    return [expanduser(p) for p in paths]
+    return [os.path.expanduser(p) for p in paths]  # type: ignore
 
 
 def scan_library(library, force):
@@ -105,6 +103,7 @@ def scan_library(library, force):
     Args:
         library (Library)
         force (bool): if True, reload all existing valid items
+    TODO: consider storing scan_dirs in Library instead of passing around always
     """
 
     paths = get_scan_dirs()

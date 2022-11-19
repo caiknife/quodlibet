@@ -1,7 +1,7 @@
 # Copyright 2005 Joe Wreschnig
 #           2012 Christoph Reiter
 #           2014 Jan Path
-#      2011-2021 Nick Boultbee
+#      2011-2022 Nick Boultbee
 #           2018 David Morris
 #
 # This program is free software; you can redistribute it and/or modify
@@ -12,11 +12,9 @@
 from typing import List, Tuple
 
 from gi.repository import Gtk, GLib, Gdk, GObject
-
-from quodlibet.library.base import Library
 from senf import uri2fsn
 
-from quodlibet import app, print_w
+from quodlibet import app, print_w, print_d
 from quodlibet import config
 from quodlibet import const
 from quodlibet import qltk
@@ -37,7 +35,6 @@ from quodlibet.formats._audio import TAG_TO_SORT, AudioFile
 from quodlibet.qltk.x import SeparatorMenuItem
 from quodlibet.qltk.songlistcolumns import create_songlist_column, SongListColumn
 from quodlibet.util import connect_destroy
-
 
 DND_QL, DND_URI_LIST = range(2)
 
@@ -154,6 +151,8 @@ def get_sort_tag(tag):
     replace_order = {
         "~#track": "",
         "~#disc": "",
+        "~#tracks": "",
+        "~#discs": "",
         "~length": "~#length"
     }
 
@@ -164,7 +163,9 @@ def get_sort_tag(tag):
 
     if "<" in tag:
         for key, value in replace_order.items():
-            tag = tag.replace("<%s>" % key, "<%s>" % value)
+            if value:
+                value = f"<{value}>"
+            tag = tag.replace(f"<{key}>", value)
         for key, value in TAG_TO_SORT.items():
             tag = tag.replace("<%s>" % key,
                               "<{1}|<{1}>|<{0}>>".format(key, value))
@@ -198,7 +199,7 @@ def header_tag_split(header):
 class SongListDnDMixin(GObject.GObject):
     """DnD support for the SongList class"""
 
-    def setup_drop(self, library: Library):
+    def setup_drop(self, library):
         self.connect('drag-begin', self.__drag_begin)
         self.connect('drag-motion', self.__drag_motion)
         self.connect('drag-leave', self.__drag_leave)
@@ -241,7 +242,7 @@ class SongListDnDMixin(GObject.GObject):
             self.set_drag_dest(x, y)
             self.scroll_motion(x, y)
             if Gtk.drag_get_source_widget(ctx) == self and \
-                    not self.__force_copy:
+                not self.__force_copy:
                 kind = Gdk.DragAction.MOVE
             else:
                 kind = Gdk.DragAction.COPY
@@ -280,7 +281,7 @@ class SongListDnDMixin(GObject.GObject):
             # be achieved by simply using the same widget check as in the move
             # action.
             if Gtk.drag_get_source_widget(ctx) == self and \
-                    not self.__force_copy:
+                not self.__force_copy:
                 self.__drag_iters = list(map(model.get_iter, paths))
             else:
                 self.__drag_iters = []
@@ -289,7 +290,7 @@ class SongListDnDMixin(GObject.GObject):
             sel.set_uris(uris)
             self.__drag_iters = []
 
-    def __drag_data_received(self, view, ctx, x, y, sel, info, etime, library: Library):
+    def __drag_data_received(self, view, ctx, x, y, sel, info, etime, library):
         model = view.get_model()
         if info == DND_QL:
             filenames = qltk.selection_get_filenames(sel)
@@ -363,8 +364,7 @@ class SongListDnDMixin(GObject.GObject):
         return window.browser.dropped(songs)
 
 
-class SongList(AllTreeView, SongListDnDMixin, DragScroll,
-               util.InstanceTracker):
+class SongList(AllTreeView, SongListDnDMixin, DragScroll, util.InstanceTracker):
     """A TreeView containing a list of songs."""
 
     __gsignals__: GSignals = {
@@ -444,7 +444,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         self.connect('destroy', self.__destroy)
 
     @property
-    def model(self):
+    def model(self) -> Gtk.TreeModel:
         return self.get_model()
 
     @property
@@ -675,6 +675,22 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         elif qltk.is_accel(event, "space", "KP_Space") and player is not None:
             player.paused = not player.paused
             return True
+        elif qltk.is_accel(event, "F2"):
+            songs = self.get_selected_songs()
+            if len(songs) > 1:
+                print_d("Can't edit more than one")
+            elif songs:
+                path, col = songlist.get_cursor()
+                song = self.get_first_selected_song()
+                cls = type(col).__name__
+                if col.can_edit:
+                    print_d(f"Let's edit this: {song} ({cls} can be edited)")
+                    renderers = col.get_cells()
+                    renderers[0].props.editable = True
+                    self.set_cursor(path, col, start_editing=True)
+                else:
+                    print_d(f"Can't edit {cls}. Maybe it's synthetic / numeric?")
+
         return False
 
     def __enqueue(self, songs):
@@ -696,7 +712,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         SongList.headers = headers
 
     def __column_width_changed(self, *args):
-        # make sure non resizable columns stay non expanding.
+        # make sure non-resizable columns stay non-expanding.
         # gtk likes to change them sometimes
         for c in self.get_columns():
             if not c.get_resizable() and c.get_expand():
@@ -754,7 +770,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             return []
         return model.get()
 
-    def _sort_songs(self, songs):
+    def _sort_songs(self, songs: List[AudioFile]):
         """Sort passed songs in place based on the column sort orders"""
 
         order = self.get_sort_orders()
@@ -810,7 +826,8 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             insert_iter = self.__find_song_position(song)
             model.insert_before(insert_iter, row=[song])
 
-    def set_songs(self, songs, sorted=False, scroll=True, scroll_select=False):
+    def set_songs(self, songs: List[AudioFile], sorted: bool = False,
+                  scroll: bool = True, scroll_select: bool = False):
         """Fill the song list.
 
         If sorted is True, the passed songs will not be sorted and
@@ -1032,32 +1049,6 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         except Exception as e:
             print_w(f"Couldn't process removed songs: {e}", self)
 
-    def __song_properties(self, librarian):
-        model, rows = self.get_selection().get_selected_rows()
-        if rows:
-            songs = [model[row][0] for row in rows]
-        else:
-            from quodlibet import app
-            if app.player.song:
-                songs = [app.player.song]
-            else:
-                return
-        window = SongProperties(librarian, songs, parent=self)
-        window.show()
-
-    def __information(self, librarian):
-        model, rows = self.get_selection().get_selected_rows()
-        if rows:
-            songs = [model[row][0] for row in rows]
-        else:
-            from quodlibet import app
-            if app.player.song:
-                songs = [app.player.song]
-            else:
-                return
-        window = Information(librarian, songs, self)
-        window.show()
-
     def set_first_column_type(self, column_type):
         """Set a column that will be included at the beginning"""
 
@@ -1093,7 +1084,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             column_expands[ce[i]] = int(ce[i + 1])
 
         for t in headers:
-            column = create_songlist_column(t)
+            column = create_songlist_column(self.model, t)
             if column.get_resizable():
                 if t in column_widths:
                     column.set_fixed_width(column_widths[t])

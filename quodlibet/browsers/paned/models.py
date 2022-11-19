@@ -1,5 +1,5 @@
 # Copyright 2013 Christoph Reiter
-#           2020 Nick Boultbee
+#        2020-22 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ class UnknownEntry(SongsEntry):
         super().__init__("", tuple(), songs)
 
     def get_text(self, config):
-        return True, "<b>%s</b>" % _("Unknown")
+        return True, util.bold(_("Unknown"))
 
     def contains_text(self, text):
         return False
@@ -103,7 +103,7 @@ class AllEntry(BaseEntry):
         return u""
 
     def get_text(self, config):
-        return True, "<b>%s</b>" % _("All")
+        return True, util.bold(_("All"))
 
     def contains_text(self, text):
         return False
@@ -128,8 +128,7 @@ class PaneModel(ObjectStore):
             return self.__key_cache[song]
         except KeyError:
             # We filter out empty values, so Unknown can be ""
-            self.__key_cache[song] = list(filter(
-                lambda v: v[0], self.config.format(song)))
+            self.__key_cache[song] = [v for v in self.config.format(song) if v[0]]
             return self.__key_cache[song]
 
     def __human_sort_key(self, text, reg=re.compile('<.*?>')):

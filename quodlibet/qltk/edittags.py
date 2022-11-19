@@ -1,5 +1,5 @@
 # Copyright 2004-2012 Joe Wreschnig, Michael Urman, Iñigo Serna
-#           2011-2020 Nick Boultbee
+#           2011-2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,11 +93,10 @@ class Comment:
             return util.escape(self.text)
         elif self.shared:
             return "\n".join(
-                ['%s<i> (%s)</i>' % (util.escape(s),
-                                     util.escape(self._paren()))
+                [f"{util.escape(s)}{util.italic(' ' + self._paren())}"
                  for s in self.text.split("\n")])
         else:
-            return '<i>(%s)</i>' % util.escape(self._paren())
+            return util.italic(self._paren())
 
 
 def get_default_tags():
@@ -527,15 +526,26 @@ class EditTags(Gtk.VBox):
             _("Show _programmatic tags"), 'editing', 'alltags', populate=True,
             tooltip=_("Access all tags, including machine-generated "
                       "ones e.g. MusicBrainz or Replay Gain tags"))
-        cb.connect('toggled', self.__all_tags_toggled)
-        self.pack_start(cb, False, True, 0)
+        cb.connect('toggled', self.__checkbox_toggled)
+        hb = Gtk.HBox()
+        hb.pack_start(cb, False, True, 0)
+
+        cb = ConfigCheckButton(
+            _("Show _multi-line tags"),
+            "editing",
+            "show_multi_line_tags",
+            populate=True,
+            tooltip=_("Show potentially multi-line tags (e.g 'lyrics') here too"))
+        cb.connect('toggled', self.__checkbox_toggled)
+        hb.pack_start(cb, False, True, 12)
+        self.pack_start(hb, False, True, 0)
 
         # Add and Remove [tags] buttons
         buttonbox = Gtk.HBox(spacing=18)
         bbox1 = Gtk.HButtonBox()
         bbox1.set_spacing(6)
         bbox1.set_layout(Gtk.ButtonBoxStyle.START)
-        add = qltk.Button(_("_Add"), Icons.LIST_ADD)
+        add = qltk.Button(_("_Add…"), Icons.LIST_ADD)
         add.set_focus_on_click(False)
         self._add = add
         add.connect('clicked', self.__add_tag, model, library)
@@ -592,7 +602,7 @@ class EditTags(Gtk.VBox):
         for child in self.get_children():
             child.show_all()
 
-    def __all_tags_toggled(self, *args):
+    def __checkbox_toggled(self, *args):
         self._update()
 
     def __view_key_press_event(self, view, event):
@@ -756,12 +766,12 @@ class EditTags(Gtk.VBox):
         iters = [i for (i, v) in model.iterrows() if v.tag == tag]
         if iters and not self._group_info.can_multiple_values(tag):
             title = _("Unable to add tag")
-            msg = _("Unable to add <b>%s</b>") % util.escape(tag)
+            msg = _("Unable to add %s") % util.bold(tag)
             msg += "\n\n"
             msg += _("The files currently"
-                    " selected do not support multiple values for <b>%s</b>."
-                    ) % util.escape(tag)
-            qltk.ErrorMessage(self, title, msg).run()
+                     " selected do not support multiple values for %s."
+                     ) % util.bold(tag)
+            qltk.ErrorMessage(self, title, msg, escape_desc=False).run()
             return
 
         entry = ListEntry(tag, Comment(value))
@@ -786,9 +796,9 @@ class EditTags(Gtk.VBox):
             assert isinstance(value, str)
             if not self._group_info.can_change(tag):
                 title = _("Invalid tag")
-                msg = _("Invalid tag <b>%s</b>\n\nThe files currently"
+                msg = _("Invalid tag %s\n\nThe files currently"
                         " selected do not support editing this tag."
-                        ) % util.escape(tag)
+                        ) % util.bold(tag)
                 qltk.ErrorMessage(self, title, msg).run()
             else:
                 self.__add_new_tag(model, tag, value)
@@ -938,8 +948,8 @@ class EditTags(Gtk.VBox):
         if not massagers.is_valid(entry.tag, new_value):
             error_dialog = qltk.WarningMessage(
                 self, _("Invalid value"),
-                _("Invalid value: <b>%(value)s</b>\n\n%(error)s") % {
-                "value": new_value,
+                _("Invalid value: %(value)s\n\n%(error)s") % {
+                "value": util.bold(new_value),
                 "error": massagers.error_message(entry.tag, new_value)})
         else:
             new_value = massagers.validate(entry.tag, new_value)
@@ -967,10 +977,10 @@ class EditTags(Gtk.VBox):
         elif not self._group_info.can_change(new_tag):
             # Can't add the new tag.
             title = _("Invalid tag")
-            msg = _("Invalid tag <b>%s</b>\n\nThe files currently"
+            msg = _("Invalid tag %s\n\nThe files currently"
                     " selected do not support editing this tag."
-                    ) % util.escape(new_tag)
-            qltk.ErrorMessage(self, title, msg).run()
+                    ) % util.bold(new_tag)
+            qltk.ErrorMessage(self, title, msg, escape_desc=False).run()
         else:
             # FIXME: In case this is a special one we only
             # validate one value and never write it back..
@@ -979,8 +989,8 @@ class EditTags(Gtk.VBox):
             if not massagers.is_valid(new_tag, text):
                 qltk.WarningMessage(
                     self, _("Invalid value"),
-                    _("Invalid value: <b>%(value)s</b>\n\n%(error)s") % {
-                      "value": text,
+                    _("Invalid value: %(value)s\n\n%(error)s") % {
+                      "value": util.bold(text),
                       "error": massagers.error_message(new_tag, text)}).run()
                 return
             text = massagers.validate(new_tag, text)
@@ -1052,6 +1062,10 @@ class EditTags(Gtk.VBox):
 
         if not config.getboolean("editing", "alltags"):
             keys = filter(lambda k: k not in MACHINE_TAGS, keys)
+
+        if not config.getboolean("editing", "show_multi_line_tags"):
+            tags = config.getstringlist("editing", "multi_line_tags")
+            keys = filter(lambda k: k not in tags, keys)
 
         if not songs:
             keys = []

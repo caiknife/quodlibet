@@ -1,5 +1,6 @@
 # Copyright 2004-2005 Joe Wreschnig, Michael Urman
-#           2012-2021 Nick Boultbee
+#           2012-2022 Nick Boultbee
+#                2022 Jej@github
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,12 +19,12 @@ from typing import Any, List, Tuple, Generic, TypeVar, Optional
 from collections import OrderedDict
 from itertools import zip_longest
 
-from senf import fsn2uri, fsnative, fsn2text, devnull, bytes2fsn, path2fsn
+from senf import fsn2uri, fsnative, fsn2text, bytes2fsn, path2fsn
 
 from quodlibet import _, print_d
 from quodlibet import util
 from quodlibet import config
-from quodlibet.util.path import mkdir, mtime, expanduser, normalize_path, \
+from quodlibet.util.path import mkdir, mtime, normalize_path, \
                                 ismount, get_home_dir, RootPathFile
 from quodlibet.util.string import encode, decode, isascii
 from quodlibet.util.environment import is_windows
@@ -52,6 +53,9 @@ PEOPLE = ["artist", "albumartist", "author", "composer", "~performers",
 
 TIME_TAGS = {"~#lastplayed", "~#laststarted", "~#added", "~#mtime"}
 """Time in seconds since epoch, defaults to 0"""
+
+DURATION_TAGS = {"~#length"}
+"""Duration in seconds"""
 
 SIZE_TAGS = {"~#filesize"}
 """Size in bytes, defaults to 0"""
@@ -286,7 +290,7 @@ class AudioFile(dict, ImageContainer, HasKey):
         """Returns a list of keys that are not internal, i.e. they don't
         have '~' in them."""
 
-        return list(filter(lambda s: s[:1] != "~", self.keys()))
+        return [s for s in self.keys() if s[:1] != "~"]
 
     def prefixkeys(self, prefix):
         """Returns a list of dict keys that either match prefix or start
@@ -519,11 +523,19 @@ class AudioFile(dict, ImageContainer, HasKey):
         elif key == "title":
             title = dict.get(self, "title")
             if title is None:
-                basename = self("~basename")
-                return "%s [%s]" % (
-                    decode_value("~basename", basename), _("Unknown"))
-            else:
-                return title
+                # build a title with missing_title_template option
+                unknown_track_template = _(config.gettext(
+                    "browsers", "missing_title_template"))
+
+                from quodlibet.pattern import Pattern
+                try:
+                    pattern = Pattern(unknown_track_template)
+                except ValueError:
+                    title = decode_value("~basename", self("~basename"))
+                else:
+                    title = pattern % self
+
+            return title
         elif key in SORT_TO_TAG:
             try:
                 return self[key]
@@ -583,8 +595,8 @@ class AudioFile(dict, ImageContainer, HasKey):
         def expand_pathfile(rpf):
             """Return the expanded RootPathFile"""
             expanded = []
-            root = expanduser(rpf.root)
-            pathfile = expanduser(rpf.pathfile)
+            root = os.path.expanduser(rpf.root)
+            pathfile = os.path.expanduser(rpf.pathfile)
             if rx_params.search(pathfile):
                 root = expand_patterns(root).format(self)
                 pathfile = expand_patterns(pathfile).format(self)
@@ -709,6 +721,9 @@ class AudioFile(dict, ImageContainer, HasKey):
         will be unicode.
 
         If the value is numeric, that is returned rather than a list.
+
+        Because this function is used to format values for display,
+        blank tags are removed from the results.
         """
 
         if "~" in key or key == "title":
@@ -722,7 +737,7 @@ class AudioFile(dict, ImageContainer, HasKey):
         if isinstance(v, (int, float)):
             return v
         else:
-            return v.replace("\n", ", ")
+            return re.sub("\n+", ", ", v.strip())
 
     def list(self, key):
         """Get all values of a tag, as a list. Synthetic tags are supported,
@@ -731,8 +746,9 @@ class AudioFile(dict, ImageContainer, HasKey):
         For file path keys the returned list might contain path items
         (non-unicode).
 
-        An empty synthetic tag cannot be distinguished from a non-existent
-        synthetic tag; both result in [].
+        An empty tag cannot be distinguished from a non-existent tag; both
+        result in []. If a file contains multiple values of a tag, empty
+        instances of the tag will not be included in the list.
         """
 
         if "~" in key or key == "title":
@@ -740,17 +756,24 @@ class AudioFile(dict, ImageContainer, HasKey):
             if v == "":
                 return []
             else:
-                return v.split("\n") if isinstance(v, str) else [v]
+                v = v.split("\n") if isinstance(v, str) else [v]
+                return [x for x in v if x]
         else:
-            v = self.get(key)
-            return [] if v is None else v.split("\n")
+            v = self.get(key, "")
+            return [x for x in v.split("\n") if x]
 
     def list_sort(self, key):
         """Like list but return display,sort pairs when appropriate
         and work on all tags.
 
-        In case no sort value exists the display one is returned. The sort
-        value is only an empty string if the display one is empty as well.
+        In case no sort value exists the display one is returned. If a
+        display tag is empty, the tag is removed from the returned list
+        and the corresponding tag in the sort tag list is ignored as
+        well.
+
+        The assumption being made here is that if the ordering between
+        display and sort tags doesn't match exactly, that's a problem
+        with the user's file.
         """
 
         display = decode_value(key, self(key))
@@ -765,7 +788,7 @@ class AudioFile(dict, ImageContainer, HasKey):
 
         result = []
         for d, s in zip_longest(display, sort):
-            if d is not None:
+            if d:
                 result.append((d, (s if s is not None and s != "" else d)))
         return result
 
@@ -1027,7 +1050,7 @@ class AudioFile(dict, ImageContainer, HasKey):
         """Remove a value from the given key.
 
         If value is None remove all values for that key, if it exists.
-        If the key or value is not found do nothing.
+        If the key or value is not found, do nothing.
         """
 
         if key not in self:
@@ -1135,7 +1158,7 @@ class AudioFile(dict, ImageContainer, HasKey):
 
 # Looks like the real thing.
 DUMMY_SONG = AudioFile({
-    '~#length': 234, '~filename': devnull,
+    '~#length': 234, '~filename': os.devnull,
     'artist': 'The Artist', 'album': 'An Example Album',
     'title': 'First Track', 'tracknumber': 1,
     'date': '2010-12-31',

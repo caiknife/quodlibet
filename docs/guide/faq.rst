@@ -13,24 +13,26 @@ Do you have a global filter in use? Check the *Browsers* tab in *Preferences*.
 Where does Quod Libet store all its metadata?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The short answer was originally: in ``~/.quodlibet``.
+The short answer was originally: in ``~/.quodlibet/``
 For newer versions of QL it's more complex:
 
+ * On all platforms, if the ``QUODLIBET_USERDIR`` environment variable is set, this will be used
  * On Windows, it will be in your user's ``AppData`` folder under ``Quod Libet``
    (except portable builds)
- * On OS X, it will be in ``~/.quodlibet``.
- * On Linux / Unix systems,
+ * On OS X, it will be in ``~/.quodlibet/``
+ * On Linux / Unix systems:
 
-    * if the ``QUODLIBET_USERDIR`` environment variable is set, this will be used
-    * else, ``$XDG_CONFIG_HOME/config`` will be used, if it exists
-    * else ``~/.quodlibet`` will be used still.
+    * if the ``XDG_CONFIG_HOME`` environment variable is set,
+      ``XDG_CONFIG_HOME/quodlibet/`` will be used
+    * else if folder ``~/.config/`` exists, ``~/.config/quodlibet/`` will be used
+    * else ``~/.quodlibet/`` will be used still
 
 
 Under there you'll find all sorts of things,
 separate from the audio file tags themselves, e.g.
 
  * ``songs`` - the pickled songs database.
- * ``config`` - the master Quod Libet configuration file - edit with care
+ * ``config`` - the main Quod Libet configuration file - edit with care
  * ``playlists/`` - a directory for all playlists
  * ``lists/`` - a directory for saved searches and so on
  * ``stations`` / ``stations_all`` - the Internet radio stations lists
@@ -228,11 +230,11 @@ fewer choices for tag editors. You could also :ref:`help us make Quod Libet
 better <Contribute>`.
 
 
-Changing the volume in Quod Libet changes the master volume!
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Changing the volume in Quod Libet changes the main volume!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since version 3.5, Quod Libet will control the PulseAudio stream volume directly (same
 as the application slider in ``pavucontrol``) which might have an effect on
-the master volume and vice versa. To restore the old behavior disable
+the main volume and vice versa. To restore the old behavior disable
 ``flat-volumes`` mode in PulseAudio. See ``man pulse-daemon.conf`` for more
 information.

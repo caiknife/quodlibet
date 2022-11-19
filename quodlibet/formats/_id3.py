@@ -115,8 +115,7 @@ class ID3File(AudioFile):
                 continue
             elif (frame.FrameID == "UFID" and
                   frame.owner == "http://musicbrainz.org"):
-                self["musicbrainz_trackid"] = frame.data.decode("utf-8",
-                                                                "replace")
+                self["musicbrainz_trackid"] = frame.data.decode("utf-8", "replace")
                 continue
             elif frame.FrameID == "POPM":
                 rating = frame.rating / 255.0
@@ -216,7 +215,7 @@ class ID3File(AudioFile):
         pass
 
     def __validate_name(self, k):
-        """Returns a ascii string or None if the key isn't supported"""
+        """Returns an ascii string or None if the key isn't supported"""
 
         if not k or "=" in k or "~" in k:
             return

@@ -17,7 +17,7 @@ from os.path import relpath
 from quodlibet.plugins.playlist import PlaylistPlugin
 from quodlibet import _
 from quodlibet import util, qltk
-from quodlibet.util.path import glib2fsn, get_home_dir
+from quodlibet.util.path import get_home_dir
 from quodlibet.qltk.msg import ConfirmFileReplace
 from quodlibet.qltk import Icons
 from quodlibet.plugins.songsmenu import SongsMenuPlugin
@@ -81,7 +81,7 @@ class PlaylistExport(PlaylistPlugin, SongsMenuPlugin):
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
-            file_path = glib2fsn(dialog.get_filename())
+            file_path = dialog.get_filename()
             dir_path = os.path.dirname(file_path)
 
             file_format = dialog.get_filter().get_name()
@@ -127,10 +127,12 @@ class PlaylistExport(PlaylistPlugin, SongsMenuPlugin):
         return files
 
     def __file_error(self, file_path):
-        qltk.ErrorMessage(
+        dialog = qltk.ErrorMessage(
             None,
             _("Unable to export playlist"),
-            _("Writing to <b>%s</b> failed.") % util.escape(file_path)).run()
+            _("Writing to %s failed.") % util.bold(file_path),
+            escape_desc=False)
+        dialog.run()
 
     def __m3u_export(self, file_path, files):
         try:

@@ -13,12 +13,12 @@ set_build_root "${DIR}/_rebuild_root"
 
 function main {
     local INSTALLER_PATH=${1}
-    local GIT_TAG=${2:-"master"}
+    local GIT_TAG=${2:-"main"}
 
     [[ -d "${BUILD_ROOT}" ]] && (echo "${BUILD_ROOT} already exists"; exit 1)
 
     # started from the wrong env -> switch
-    if [ $(echo "$MSYSTEM" | tr '[A-Z]' '[a-z]') != "$MINGW" ]; then
+    if [ "$(echo "$MSYSTEM" | tr 'A-Z' 'a-z')" != "$MINGW" ]; then
         "/${MINGW}.exe" "$0"
         exit $?
     fi

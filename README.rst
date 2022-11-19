@@ -1,7 +1,3 @@
-.. image:: https://hosted.weblate.org/widgets/quodlibet/-/quodlibet/svg-badge.svg
-    :alt: Translation status
-    :target: https://hosted.weblate.org/engage/quodlibet/
-
 .. image:: https://img.shields.io/github/workflow/status/quodlibet/quodlibet/test
     :target: https://github.com/quodlibet/quodlibet/actions
 
@@ -14,11 +10,12 @@
 .. image:: https://img.shields.io/github/v/release/quodlibet/quodlibet
     :target: https://github.com/quodlibet/quodlibet/releases
 
-.. image:: https://img.shields.io/github/languages/top/quodlibet/quodlibet
-    :target: https://github.com/quodlibet/quodlibet
-
 .. image:: https://img.shields.io/github/contributors/quodlibet/quodlibet
     :target: https://github.com/quodlibet/quodlibet/graphs/contributors
+
+.. image:: https://hosted.weblate.org/widgets/quodlibet/-/quodlibet/svg-badge.svg
+    :alt: Translation status
+    :target: https://hosted.weblate.org/engage/quodlibet/
 
 Quod Libet: an audio library, manager & player
 ---------------------------------------------
@@ -32,7 +29,7 @@ It has extremely flexible metadata editing and searching capabilities.
 With over 90 plugins included, you can extend and integrate with almost anything,
 or `write your own <https://quodlibet.readthedocs.io/en/latest/development/plugins.html>`_!
 
-.. image:: https://github.com/quodlibet/quodlibet/raw/master/docs/images/album-list-2017-08.png
+.. image:: https://github.com/quodlibet/quodlibet/raw/main/docs/images/album-list-2017-08.png
     :align: center
 
 

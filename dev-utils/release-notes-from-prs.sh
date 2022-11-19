@@ -22,7 +22,17 @@ echo -e "\n\nMaster:"
 git log \
     --pretty=format:"%aN|%s" \
     --no-merges \
-    --first-parent master \
+    --invert-grep \
+    --grep "pull request" \
+    --grep "Update translation files" \
+    --grep "Translated using Weblate" \
+    --grep "Update quodlibet.pot" \
+    --first-parent main \
     --since="$from_date" \
-    | sed -nre 's/(.+)+\|(.*)/ * \2 (:user:`\1`)/p'
+    | sed -nre 's/(.+)+\|(.*)/ * \2 (:user:`\1`)/p' \
+    | sed -r \
+          -e 's/`Nick B`|`Nick Boultbee`/`Nick Boultbee <declension>`/g' \
+          -e 's/`lazka`/`Christoph Reiter <lazka>`/g' \
+          -e 's/`Christoph Reiter`|`lazka`/`Christoph Reiter <lazka>`/g' \
+          -e 's/`Joschua Gandert`/`Joschua Gandert <CreamyCookie>`/g'
 echo

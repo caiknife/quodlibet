@@ -1,6 +1,6 @@
 # Synchronized Lyrics: a Quod Libet plugin for showing synchronized lyrics.
 # Copyright (C) 2015 elfalem
-#            2016-20 Nick Boultbee
+#            2016-22 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@ from typing import List, Tuple, Optional
 
 from gi.repository import Gtk, Gdk, GLib
 
-from quodlibet import _
+from quodlibet import _, util
 from quodlibet import app
 from quodlibet import qltk
 from quodlibet.formats import AudioFile
@@ -42,7 +42,7 @@ class SynchronizedLyrics(EventPlugin, PluginConfigMixin):
     CFG_FONTSIZE_KEY = "fontSize"
 
     # Note the trimming of whitespace, seems "most correct" behaviour
-    LINE_REGEX = re.compile(r"\s*\[([0-9]+:[0-9.]*)\]\s*(.+)\s*")
+    LINE_REGEX = re.compile(r"\s*\[([0-9]+:[0-9.]*)]\s*(.+)\s*")
 
     def __init__(self) -> None:
         super().__init__()
@@ -52,6 +52,7 @@ class SynchronizedLyrics(EventPlugin, PluginConfigMixin):
         self.textview = None
         self.scrolled_window = None
 
+    @classmethod
     def PluginPreferences(cls, window):
         vb = Gtk.VBox(spacing=6)
         vb.set_border_width(6)
@@ -61,7 +62,7 @@ class SynchronizedLyrics(EventPlugin, PluginConfigMixin):
         t.set_row_spacings(3)
 
         clr_section = Gtk.Label()
-        clr_section.set_markup("<b>" + _("Colors") + "</b>")
+        clr_section.set_markup(util.bold(_("Colors")))
         t.attach(clr_section, 0, 2, 0, 1)
 
         l = Gtk.Label(label=_("Text:"))
@@ -85,7 +86,7 @@ class SynchronizedLyrics(EventPlugin, PluginConfigMixin):
         b.connect('color-set', cls._set_background_color)
 
         font_section = Gtk.Label()
-        font_section.set_markup("<b>" + _("Font") + "</b>")
+        font_section.set_markup(util.bold(_("Font")))
         t.attach(font_section, 0, 2, 3, 4)
 
         l = Gtk.Label(label=_("Size (px):"))
@@ -102,17 +103,20 @@ class SynchronizedLyrics(EventPlugin, PluginConfigMixin):
         vb.pack_start(t, False, False, 0)
         return vb
 
-    def _get_text_color(self):
-        v = self.config_get(self.CFG_TXTCOLOR_KEY, self.DEFAULT_TXTCOLOR)
+    @classmethod
+    def _get_text_color(cls):
+        v = cls.config_get(cls.CFG_TXTCOLOR_KEY, cls.DEFAULT_TXTCOLOR)
         return v[:3] + v[5:7] + v[9:11]
 
-    def _get_background_color(self):
-        v = self.config_get(self.CFG_BGCOLOR_KEY, self.DEFAULT_BGCOLOR)
+    @classmethod
+    def _get_background_color(cls):
+        v = cls.config_get(cls.CFG_BGCOLOR_KEY, cls.DEFAULT_BGCOLOR)
         return v[:3] + v[5:7] + v[9:11]
 
-    def _get_font_size(self):
-        return int(self.config_get(self.CFG_FONTSIZE_KEY,
-                                   self.DEFAULT_FONTSIZE))
+    @classmethod
+    def _get_font_size(cls):
+        return int(cls.config_get(cls.CFG_FONTSIZE_KEY,
+                                  cls.DEFAULT_FONTSIZE))
 
     def _set_text_color(self, button):
         self.config_set(self.CFG_TXTCOLOR_KEY, button.get_color().to_string())

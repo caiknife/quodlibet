@@ -1,7 +1,8 @@
 # Copyright 2004-2008 Joe Wreschnig
-#           2009-2020 Nick Boultbee
+#           2009-2022 Nick Boultbee
 #           2011-2014 Christoph Reiter
 #           2018-2019 Peter Strulo
+#                2022 Jej@github
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,10 +50,17 @@ INITIAL: Dict[str, Dict[str, str]] = {
 
         "is_playing": "false",
         "restore_playing": "false",
+
+        # Consider a track as played after listening to
+        # this proportion of its overall length
+        "playcount_minimum_length_proportion": "0.5",
     },
     "library": {
         "exclude": "",
         "refresh_on_start": "true",
+
+        # Watch all library files / directories for changes
+        "watch": "false"
     },
 
     # State about the player, to restore on startup
@@ -111,6 +119,12 @@ INITIAL: Dict[str, Dict[str, str]] = {
         # search bar text
         "query_text": "",
 
+        # number of history entries in the search bar
+        "searchbar_historic_entries": "8",
+
+        # confirmation limit on enqueuing songs from the search bar
+        "searchbar_enqueue_limit": "50",
+
         # panes in paned browser
         "panes":
             "~people\t<~year|[b][i]<~year>[/i][/b] - ><album>",
@@ -168,6 +182,9 @@ INITIAL: Dict[str, Dict[str, str]] = {
 
         # show "all albums" in covergrid view
         "covergrid_all": "1",
+
+        # Template to build the track title when title tag is missing
+        "missing_title_template": "<~basename> [untitled <~format>]",
     },
 
     # Kind of a dumping ground right now, should probably be
@@ -245,6 +262,12 @@ INITIAL: Dict[str, Dict[str, str]] = {
         "validator_colorise": "0.4"
     },
 
+    "autosave": {
+        # Maximum time, in seconds, before saving the play queue to disk.
+        # Zero to disable periodic saving (batched instead)
+        "queue_interval": "60"
+    },
+
     "rename": {
         "spaces": "false",
         "windows": "true",
@@ -285,6 +308,11 @@ INITIAL: Dict[str, Dict[str, str]] = {
 
         # show all tags, or just "human-readable" ones
         "alltags": "true",
+
+        # Show multi-line tags
+        "show_multi_line_tags": "true",
+        # Which tags can be multi-line (comma-separated)
+        "multi_line_tags": "lyrics,comment",
 
         # Skip dialog to save or revert changes
         "auto_save_changes": "false",

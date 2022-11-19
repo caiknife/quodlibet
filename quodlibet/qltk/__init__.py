@@ -1,6 +1,6 @@
 # Copyright 2005 Joe Wreschnig, Michael Urman
 #           2012 Christoph Reiter
-#          2016-17 Nick Boultbee
+#          2016-22 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,6 +10,7 @@
 import os
 import signal
 import socket
+from typing import Union
 from urllib.parse import urlparse
 
 import gi
@@ -24,7 +25,7 @@ from quodlibet.util import print_d, print_w, is_windows, is_osx
 
 
 def show_uri(label, uri):
-    """Shows a uri. The uri can be anything handled by GIO or a quodlibet
+    """Shows a URI. The URI can be anything handled by GIO or a quodlibet
     specific one.
 
     Currently handled quodlibet uris:
@@ -340,8 +341,8 @@ def is_accel(event, *accels):
                 (accel, Gtk.accelerator_name(0, non_default) or ""))
 
         # event.state contains the real mod mask + the virtual one, while
-        # we usually pass only virtual one as text. This adds the real one
-        # so they match in the end.
+        # we usually pass only virtual one as text.
+        # This adds the real one so that they match in the end.
         accel_mod = keymap.map_virtual_modifiers(accel_mod)[1]
 
         # Remove everything except default modifiers and compare
@@ -351,7 +352,7 @@ def is_accel(event, *accels):
     return False
 
 
-def add_css(widget, css):
+def add_css(widget: Gtk.Widget, css: Union[bytes, str]):
     """Add css for the widget, overriding the theme.
 
     Can raise GLib.GError in case the css is invalid
@@ -427,7 +428,7 @@ def io_add_watch(fd, prio, condition, func, *args, **kwargs):
     try:
         # The new gir bindings don't fail with an invalid fd,
         # and we can't do the same with the static ones (return a valid
-        # source ID..) so fail with newer pygobject as well.
+        # source ID…) so fail with newer pygobject as well.
         if isinstance(fd, int) and fd < 0:
             raise ValueError("invalid fd")
         elif hasattr(fd, "fileno") and fd.fileno() < 0:

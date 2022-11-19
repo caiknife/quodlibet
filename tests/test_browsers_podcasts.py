@@ -2,12 +2,13 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-
+from _pytest.fixtures import fixture
 from gi.repository import Gtk
 
 import quodlibet.config
-from quodlibet.browsers.audiofeeds import AudioFeeds, AddFeedDialog, Feed
+from quodlibet.browsers.podcasts import Podcasts, AddFeedDialog, Feed
 from quodlibet.library import SongLibrary
+from quodlibet.util.config import Config
 from senf import fsn2uri
 from tests import TestCase, get_data_path
 
@@ -18,7 +19,7 @@ class TAudioFeeds(TestCase):
     def setUp(self):
         quodlibet.config.init()
         self.library = SongLibrary()
-        self.bar = AudioFeeds(self.library)
+        self.bar = Podcasts(self.library)
 
     def test_can_filter(self):
         for key in ["foo", "title", "fake~key", "~woobar", "~#huh"]:
@@ -49,7 +50,7 @@ class TFeed(TestCase):
         quodlibet.config.init()
 
     def test_feed(self):
-        fn = get_data_path('valid_feed.xml')
+        fn = get_data_path('valid_podcast.xml')
         feed = Feed(fsn2uri(fn))
         result = feed.parse()
         # Assume en_US / en_GB locale here in tests
@@ -62,3 +63,25 @@ class TFeed(TestCase):
 
     def tearDown(self):
         quodlibet.config.quit()
+
+
+@fixture
+def config():
+    quodlibet.config.init()
+    yield quodlibet.config
+    quodlibet.config.quit()
+
+
+@fixture
+def podcasts():
+    library = SongLibrary()
+    return Podcasts(library)
+
+
+def test_menu_items_can_be_clicked(config: Config, podcasts: Podcasts):
+    view = podcasts._view
+    view.popup_menu = lambda *args: True
+    menu = podcasts._popup_menu(None)
+    assert menu
+    for item in menu.get_children():
+        item.emit('activate')

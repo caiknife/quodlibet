@@ -38,19 +38,19 @@ png-%: $(THEME)/%/apps/$(QL_DEST) $(THEME)/%/apps/$(EF_DEST) $(THEME)/%/status/$
 
 $(THEME)/%/apps/$(QL_DEST): $(QL_SOURCE)
 	mkdir -p $(dir $@)
-	inkscape $< --export-png $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
+	inkscape $< --export-filename $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
 
 $(THEME)/%/apps/$(EF_DEST): $(EF_SOURCE)
 	mkdir -p $(dir $@)
-	inkscape $< --export-png $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
+	inkscape $< --export-filename $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
 
 $(THEME)/%/status/$(QL_MC_DEST): $(QL_MC_SOURCE)
 	mkdir -p $(dir $@)
-	inkscape $< --export-png $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
+	inkscape $< --export-filename $@ -w $(shell echo $* | cut -dx -f1) -h $(shell echo $* | cut -dx -f2) ;
 
 $(SYMBOLIC_TARGET): $(SYMBOLIC_SRC)
 	cp $(@:.svg=.svg.in) "_temp.svg"
-	inkscape -f "_temp.svg" --verb=EditSelectAll \
+	inkscape "_temp.svg" --verb=EditSelectAll \
 		--verb=SelectionUnGroup --verb=StrokeToPath --verb=SelectionUnion \
 		--verb=FileVacuum \
 		--verb=FileSave --verb=FileClose --verb=FileQuit

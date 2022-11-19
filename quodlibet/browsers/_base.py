@@ -1,6 +1,6 @@
 # Copyright 2004-2005 Joe Wreschnig, Michael Urman, Iñigo Serna
 #           2012 Christoph Reiter
-#           2016-2020 Nick Boultbee
+#           2016-2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ class Filter:
         return False
 
     def filter_albums(self, values):
-        """Do filtering base on a list of album keys"""
+        """Filter based on a list of album keys"""
         raise NotImplementedError
 
     def list_albums(self):
@@ -94,7 +94,7 @@ class Filter:
         return c or (key is not None and self.can_filter_tag(key))
 
     def filter_on(self, songs, key):
-        """Do filtering in the best way the browser can handle"""
+        """Filter in the best way the browser can handle"""
         if key == "album" and self.can_filter_albums():
             values = {s.album_key for s in songs}
             self.filter_albums(values)
@@ -129,6 +129,10 @@ class Filter:
                 value = random.choice(values)
                 query = util.build_filter_query(key, [value])
                 self.filter_text(query)
+
+
+class BrowserError(Exception):
+    pass
 
 
 class Browser(Gtk.Box, Filter):
@@ -299,27 +303,27 @@ class DisplayPatternMixin:
         print_d("Loading pattern from %s" % cls._PATTERN_FN)
         try:
             with open(cls._PATTERN_FN, "r", encoding="utf-8") as f:
-                cls.__pattern_text = f.read().rstrip()
+                pattern_text = f.read().rstrip()
         except EnvironmentError as e:
             print_d("Couldn't load pattern for %s (%s), using default." %
                     (cls.__name__, e))
-            cls.__pattern_text = cls._DEFAULT_PATTERN_TEXT
-        cls.__refresh_pattern()
+            pattern_text = cls._DEFAULT_PATTERN_TEXT
+        cls.__refresh_pattern(pattern_text)
 
     def update_pattern(self, pattern_text):
         """Saves `pattern_text` to disk (and caches)"""
         if pattern_text == self.__pattern_text:
             return
-        self.__pattern_text = pattern_text
-        self.__refresh_pattern()
+        self.__refresh_pattern(pattern_text)
         self.refresh_all()
         print_d(f"Saving pattern for {self} at {self._PATTERN_FN}")
         with open(self._PATTERN_FN, "w", encoding="utf-8") as f:
             f.write(pattern_text + "\n")
 
     @classmethod
-    def __refresh_pattern(cls):
-        cls.__pattern = XMLFromMarkupPattern(cls.__pattern_text)
+    def __refresh_pattern(cls, pattern_text):
+        cls.__pattern_text = pattern_text
+        cls.__pattern = XMLFromMarkupPattern(pattern_text)
 
     @property
     def display_pattern(self):

@@ -1,5 +1,6 @@
 # Copyright 2013 Christoph Reiter
 #           2015 Anton Shestakov
+#        2017-22 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,12 +13,13 @@ import sys
 import shutil
 import locale
 import errno
-from io import StringIO
+import io
+from pathlib import Path
 
 from gi.repository import Gtk, Gdk
 
 from quodlibet.util.i18n import GlibTranslations
-from senf import fsnative, environ
+from senf import fsnative
 
 from quodlibet.qltk import find_widgets, get_primary_accel_mod
 from quodlibet.util.path import normalize_path
@@ -221,16 +223,16 @@ def visible(widget, width=None, height=None):
 
 @contextlib.contextmanager
 def preserve_environ():
-    old = environ.copy()
+    old = os.environ.copy()
     yield
     # don't touch existing values as os.environ is broken for empty
     # keys on Windows: http://bugs.python.org/issue20658
-    for key, value in list(environ.items()):
+    for key, value in list(os.environ.items()):
         if key not in old:
-            del environ[key]
+            del os.environ[key]
     for key, value in old.items():
-        if key not in environ or environ[key] != value:
-            environ[key] = value
+        if key not in os.environ or os.environ[key] != value:
+            os.environ[key] = value
 
 
 @contextlib.contextmanager
@@ -241,8 +243,12 @@ def capture_output():
     print stdout.getvalue(), stderr.getvalue()
     """
 
-    err = StringIO()
-    out = StringIO()
+    err = io.TextIOWrapper(
+        io.BytesIO(), encoding="utf-8", write_through=True, newline='\n')
+    err.getvalue = lambda: err.buffer.getvalue().decode()
+    out = io.TextIOWrapper(
+        io.BytesIO(), encoding="utf-8", write_through=True, newline='\n')
+    out.getvalue = lambda: out.buffer.getvalue().decode()
     old_err = sys.stderr
     old_out = sys.stdout
     sys.stderr = err
@@ -256,8 +262,10 @@ def capture_output():
 
 
 @contextlib.contextmanager
-def temp_filename(*args, **kwargs):
-    """Creates an empty file and removes it when done.
+def temp_filename(*args, as_path=False, **kwargs):
+    """
+    Creates an empty file, returning the normalized path to it,
+    and removes it when done.
 
         with temp_filename() as filename:
             with open(filename, 'w') as h:
@@ -266,11 +274,14 @@ def temp_filename(*args, **kwargs):
     """
 
     from tests import mkstemp
-
+    try:
+        del kwargs["as_path"]
+    except KeyError:
+        pass
     fd, filename = mkstemp(*args, **kwargs)
     os.close(fd)
-
-    yield filename
+    normalized = normalize_path(filename)
+    yield Path(normalized) if as_path else normalized
 
     try:
         os.remove(filename)

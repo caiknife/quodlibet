@@ -120,7 +120,7 @@ class BasePlayer(GObject.GObject, Equalizer):
         Args:
             volume (float): 0.0..1.0
         Returns:
-            float: adjusted volume, can be outside of 0.0..0.1
+            float: adjusted volume, can be outside 0.0..0.1
         """
 
         if self.song and config.getboolean("player", "replaygain"):
@@ -191,7 +191,7 @@ class BasePlayer(GObject.GObject, Equalizer):
 
         raise NotImplementedError
 
-    def setup(self, source, song, seek_pos):
+    def setup(self, source, song, seek_pos, explicit=True):
         """Connect to a PlaylistModel, and load a song.
 
         seek_pos in millisecs
@@ -201,7 +201,7 @@ class BasePlayer(GObject.GObject, Equalizer):
         if self._source is None:
             self.emit("song-started", song)
         self._source = source
-        self.go_to(song, explicit=True)
+        self.go_to(song, explicit)
         if seek_pos:
             self.seek(seek_pos)
 

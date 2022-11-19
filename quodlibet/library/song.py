@@ -2,20 +2,23 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-
-from typing import Optional, Set
+from pathlib import Path
+from typing import Optional, Set, Iterable, TypeVar, Union
 
 from quodlibet import util, print_d
 from quodlibet.formats import MusicFile, AudioFile
 from quodlibet.library.album import AlbumLibrary
-from quodlibet.library.base import Library, K, PicklingMixin
-from quodlibet.library.file import FileLibrary
+from quodlibet.library.base import Library, PicklingMixin, K
+from quodlibet.library.file import WatchedFileLibraryMixin
 from quodlibet.library.playlist import PlaylistLibrary
 from quodlibet.query import Query
 from quodlibet.util.path import normalize_path
+from senf import fsnative
+
+V = TypeVar("V", bound=AudioFile)
 
 
-class SongLibrary(Library[K, AudioFile], PicklingMixin):
+class SongLibrary(Library[K, V], PicklingMixin):
     """A library for songs.
 
     Items in this kind of library must support (roughly) the AudioFile
@@ -78,27 +81,28 @@ class SongLibrary(Library[K, AudioFile], PicklingMixin):
 
         songs = self.values()
         if text != "":
-            songs = list(filter(Query(text, star).search, songs))
+            search = Query(text, star).search
+            songs = [s for s in songs if search(s)]
         return songs
 
 
-class SongFileLibrary(SongLibrary, FileLibrary):
+class SongFileLibrary(SongLibrary, WatchedFileLibraryMixin):
     """A library containing song files.
     Pickles contents to disk as `FileLibrary`"""
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, watch_dirs: Optional[Iterable[fsnative]] = None):
         print_d(f"Initializing {type(self)}: {name!r}")
         super().__init__(name)
-
-    def contains_filename(self, filename):
-        key = normalize_path(filename, True)
-        return key in self._contents
+        if watch_dirs:
+            self.start_watching(watch_dirs)
 
     def get_filename(self, filename):
         key = normalize_path(filename, True)
         return self._contents.get(key)
 
-    def add_filename(self, filename, add=True):
+    def add_filename(self,
+                     filename: Union[str, Path],
+                     add: bool = True) -> Optional[AudioFile]:
         """Add a song to the library based on filename.
 
         If 'add' is true, the song will be added and the 'added' signal

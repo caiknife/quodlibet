@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Copyright 2016 Christoph Reiter
+#           2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,11 +50,11 @@ function build_python {
 }
 
 function build_compileall_pyconly {
-    MSYSTEM= build_python -m compileall --invalidation-mode unchecked-hash -b "$@"
+    MSYSTEM="" build_python -m compileall --invalidation-mode unchecked-hash -b "$@"
 }
 
 function build_compileall {
-    MSYSTEM= build_python -m compileall --invalidation-mode unchecked-hash "$@"
+    MSYSTEM="" build_python -m compileall --invalidation-mode unchecked-hash "$@"
 }
 
 function install_pre_deps {
@@ -69,6 +70,7 @@ function create_root {
     mkdir -p "${BUILD_ROOT}"/tmp
 
     build_pacman -Syu
+    build_pacman --noconfirm -S filesystem msys2-runtime
     build_pacman --noconfirm -S base
 }
 
@@ -77,7 +79,7 @@ function extract_installer {
 
     mkdir -p "$BUILD_ROOT"
     7z x -o"$BUILD_ROOT"/"$MINGW" "$1"
-    rm -rf "$MINGW_ROOT"/'$PLUGINSDIR' "$MINGW_ROOT"/*.txt "$MINGW_ROOT"/*.nsi
+    rm -rf "${MINGW_ROOT:?}/$PLUGINSDIR" "$MINGW_ROOT"/*.txt "$MINGW_ROOT"/*.nsi
 }
 
 function install_deps {
@@ -106,11 +108,11 @@ function install_deps {
 feedparser
 musicbrainzngs
 mutagen
-flake8
+flake8==5.0.4
 "
 
     build_pip install --no-binary ":all:" \
-        --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
+        --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr "\\n" " ")
 
     build_pacman --noconfirm -Rdds \
         mingw-w64-"${ARCH}"-shared-mime-info \
@@ -127,8 +129,6 @@ flake8
         mingw-w64-"${ARCH}"-openh264 \
         mingw-w64-"${ARCH}"-zbar \
         mingw-w64-"${ARCH}"-gsl
-
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python2 || true
 
     build_pacman -S --noconfirm mingw-w64-"${ARCH}"-python3-setuptools
 }
@@ -147,13 +147,15 @@ function install_quodlibet {
     python3 "${MISC}"/create-launcher.py \
         "${QL_VERSION}" "${MINGW_ROOT}"/bin
 
-    QL_VERSION=$(MSYSTEM= build_python -c \
+    QL_VERSION=$(MSYSTEM="" build_python -c \
         "import quodlibet.const; import sys; sys.stdout.write(quodlibet.const.VERSION)")
     QL_VERSION_DESC="$QL_VERSION"
-    if [ "$1" = "master" ]
+    if [ "$1" = "main" ]
     then
-        local GIT_REV=$(git rev-list --count HEAD)
-        local GIT_HASH=$(git rev-parse --short HEAD)
+        local GIT_REV
+        local GIT_HASH
+        GIT_REV=$(git rev-list --count HEAD)
+        GIT_HASH=$(git rev-parse --short HEAD)
         QL_VERSION_DESC="$QL_VERSION-rev$GIT_REV-$GIT_HASH"
     fi
 
@@ -204,7 +206,7 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/libexec
     rm -Rf "${MINGW_ROOT}"/share/gtk-doc
     rm -Rf "${MINGW_ROOT}"/include
-    rm -Rf "${MINGW_ROOT}"/var
+    rm -Rf "${MINGW_ROOT:?}"/var
     rm -Rf "${MINGW_ROOT}"/etc/config.site
     rm -Rf "${MINGW_ROOT}"/etc/pki
     rm -Rf "${MINGW_ROOT}"/etc/pkcs11

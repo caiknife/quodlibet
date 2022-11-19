@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 from gi.repository import Gtk, GObject, Gdk, Gio, Pango
 from senf import uri2fsn, fsnative, fsn2text, bytes2fsn
 
-from quodlibet import formats, print_d
+from quodlibet import formats, print_d, util
 from quodlibet import qltk
 from quodlibet import _
 
@@ -25,7 +25,7 @@ from quodlibet.qltk.x import ScrolledWindow, Paned
 from quodlibet.qltk.models import ObjectStore, ObjectTreeStore
 from quodlibet.qltk import Icons
 from quodlibet.util.path import listdir, \
-    glib2fsn, xdg_get_user_dirs, get_home_dir, xdg_get_config_home
+    xdg_get_user_dirs, get_home_dir, xdg_get_config_home
 from quodlibet.util import connect_obj
 
 
@@ -130,7 +130,7 @@ def get_drives():
     for mount in Gio.VolumeMonitor.get().get_mounts():
         path = mount.get_root().get_path()
         if path is not None:
-            paths.append(glib2fsn(path))
+            paths.append(path)
     if os.name != "nt":
         paths.append("/")
     return sorted(paths)
@@ -375,15 +375,14 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
         if not dir_:
             return
 
-        dir_ = glib2fsn(dir_)
         fullpath = os.path.realpath(os.path.join(directory, dir_))
 
         try:
             os.makedirs(fullpath)
         except EnvironmentError as err:
-            error = "<b>%s</b>: %s" % (err.filename, err.strerror)
+            error = f"{util.bold(err.filename)}: {util.escape(err.strerror)}"
             qltk.ErrorMessage(
-                None, _("Unable to create folder"), error).run()
+                None, _("Unable to create folder"), error, escape_desc=False).run()
             return
 
         self.emit('test-expand-row', model.get_iter(path), path)
@@ -398,9 +397,9 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
             try:
                 os.rmdir(directory)
             except EnvironmentError as err:
-                error = "<b>%s</b>: %s" % (err.filename, err.strerror)
+                error = f"{util.bold(err.filename)}: {err.strerror}"
                 qltk.ErrorMessage(
-                    None, _("Unable to delete folder"), error).run()
+                    None, _("Unable to delete folder"), error, escape_desc=False).run()
                 return
 
         ppath = Gtk.TreePath(paths[0][:-1])

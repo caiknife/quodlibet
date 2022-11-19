@@ -1,7 +1,7 @@
 # Copyright 2004-2005 Joe Wreschnig, Michael Urman
 #           2011 Christoph Reiter
 #           2016 Ryan Dellenbaugh
-#        2016-20 Nick Boultbee
+#        2016-22 Nick Boultbee
 #           2018 Peter Strulo
 #
 # This program is free software; you can redistribute it and/or modify
@@ -13,10 +13,12 @@ from __future__ import annotations
 
 import operator
 import time
+from enum import auto, Enum
 from numbers import Real
-from typing import TypeVar, List, Iterable
+from typing import TypeVar, List, Iterable, Optional
 
 from quodlibet.formats import FILESYSTEM_TAGS, TIME_TAGS
+from quodlibet.formats._audio import SIZE_TAGS, DURATION_TAGS
 from quodlibet.unisearch import compile
 from quodlibet.util import parse_date
 from senf import fsn2text, fsnative
@@ -237,6 +239,10 @@ class Numcmp(Node):
         self._expr = expr
         self._op = self.operators[op]
         self._expr2 = expr2
+        units = expr2.units()
+
+        if units and not expr.valid_for_units(units):
+            raise ParseError(f"Wrong units for {expr}")
 
     def search(self, data):
         time_ = time.time()
@@ -282,6 +288,14 @@ class Numexpr:
         values instead of the number values."""
         return False
 
+    def units(self) -> Optional[Units]:
+        """Returns optional (converted) units for this number"""
+        return None
+
+    def valid_for_units(self, units: Units) -> bool:
+        """Returns true if the given unit is valid for this expression"""
+        return True
+
 
 class NumexprTag(Numexpr):
     """Numeric tag"""
@@ -289,6 +303,11 @@ class NumexprTag(Numexpr):
     def __init__(self, tag: str):
         self._tag = tag
         self._ftag = "~#" + self._tag
+        # Strip aggregate function from tag
+        self._base_ftag = (self._ftag or "").split(":")[0]
+
+    def valid_for_units(self, units: Units) -> bool:
+        return self._base_ftag in UNITS_TO_TAGS[units]
 
     def evaluate(self, data, time, use_date):
         if self._tag == 'date':
@@ -302,10 +321,7 @@ class NumexprTag(Numexpr):
         else:
             num = data(self._ftag, None)
         if num is not None:
-            # Strip aggregate function from tag
-            func_start = self._ftag.find(":")
-            tag = self._ftag[:func_start] if func_start >= 0 else self._ftag
-            if tag in TIME_TAGS:
+            if self._base_ftag in TIME_TAGS:
                 num = time - num
             return round(num, 2)
         return None
@@ -364,7 +380,7 @@ class NumexprBinary(Numexpr):
         self.__expr2 = expr2
         # Rearrange expressions for operator precedence
         if (isinstance(expr, NumexprBinary)
-                and self.precedence[expr.__op] < self.precedence[self.__op]):
+            and self.precedence[expr.__op] < self.precedence[self.__op]):
             self.__expr = expr.__expr
             self.__op = expr.__op
             expr.__expr = expr.__expr2
@@ -409,11 +425,15 @@ class NumexprGroup(Numexpr):
 class NumexprNumber(Numexpr):
     """Number in numeric expression"""
 
-    def __init__(self, value: Real):
+    def __init__(self, value: Real, units: Units = None):
         self._value = float(value)
+        self._units = units
 
     def evaluate(self, data, time, use_date):
         return self._value
+
+    def units(self) -> Optional[Units]:
+        return self._units
 
     def __repr__(self):
         return "<NumexprNumber value=%.2f>" % (self._value)
@@ -456,11 +476,19 @@ class NumexprNumberOrDate(Numexpr):
                 (self.number, self.date))
 
 
+class Units(Enum):
+    SECONDS = auto()
+    BYTES = auto()
+
+
+UNITS_TO_TAGS = {Units.SECONDS: TIME_TAGS | DURATION_TAGS, Units.BYTES: SIZE_TAGS}
+
+
 def numexprUnit(value, unit):
     """Process numeric units and return NumexprNumber"""
 
     unit = unit.lower().strip()
-
+    converted = Units.SECONDS
     # Time units
     if unit.startswith("second"):
         value = value
@@ -479,15 +507,18 @@ def numexprUnit(value, unit):
     # Size units
     elif unit.startswith("g"):
         value *= 1024 ** 3
+        converted = Units.BYTES
     elif unit.startswith("m"):
         value *= 1024 ** 2
+        converted = Units.BYTES
     elif unit.startswith("k"):
         value *= 1024
+        converted = Units.BYTES
     elif unit.startswith("b"):
-        pass
+        converted = Units.SECONDS
     elif unit:
         raise ParseError("No such unit: %r" % unit)
-    return NumexprNumber(value)
+    return NumexprNumber(value, converted)
 
 
 def numexprTagOrSpecial(tag):

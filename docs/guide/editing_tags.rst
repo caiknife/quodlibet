@@ -16,6 +16,13 @@ path* tab to populate these tags automatically. Please see
 process for several songs (the process is the same).
 
 
+Editing tags in-place
+---------------------
+As of QL 4.6, for plain, textual tags (not internal, and not *tag expressions*)
+you can edit these in-place in the songlist, by navigating to the column within
+the song's row, and pressing F2. Changes are immediate.
+
+
 Editing tags for several songs at once
 --------------------------------------
 
@@ -109,6 +116,7 @@ There are in general two types of tag splitting possible: splitting on a single
 character and *subtag* splitting (extracting values in enclosures). The
 separating characters for both can be configured in the *Tags* tab in the
 preferences.
+Note that the "Split on" values in the configure dialog are space-separated.
 
 Splitting on a single character - like ``,`` or ``&`` - will split a tag into
 multiple tags of the same type, but with different values. An example of this

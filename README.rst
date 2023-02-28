@@ -1,4 +1,4 @@
-.. image:: https://img.shields.io/github/workflow/status/quodlibet/quodlibet/test
+.. image:: https://img.shields.io/github/actions/workflow/status/quodlibet/quodlibet/main.yml?branch=main
     :target: https://github.com/quodlibet/quodlibet/actions
 
 .. image:: https://readthedocs.org/projects/quodlibet/badge/?version=latest
@@ -48,8 +48,12 @@ check out the
 
 For how to use the apps, consult the `user guide <https://quodlibet.readthedocs.io/en/latest/guide/>`_.
 
+
 Contact
 -------
+
+.. image:: https://img.shields.io/mastodon/follow/109620111805015448?domain=https%3A%2F%2Ffosstodon.org&style=social
+    :target: https://fosstodon.org/@quodlibet
 
 .. image:: https://img.shields.io/twitter/follow/QuodLibetApp?style=social
     :target: https://twitter.com/QuodLibetApp

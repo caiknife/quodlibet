@@ -178,9 +178,9 @@ class AdvancedPreferences(EventPlugin):
                  "(restart required)")),
             text_config(
                 "settings", "datecolumn_timestamp_format",
-                "DateColumn timestamp format:",
-                "A timestamp format, e.g. %Y%m%d %X"),
-            text_config(
+                "Timestamp date format:",
+                "A timestamp format for dates, e.g. %Y%m%d %X (restart required)"),
+            boolean_config(
                 "settings", "scrollbar_always_visible",
                 "Scrollbars always visible:",
                 ("Toggles whether the scrollbars on the bottom and side of "

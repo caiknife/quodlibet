@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Quod Libet 0.23\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 11:38+0100\n"
-"PO-Revision-Date: 2021-11-05 03:34+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2023-01-11 16:50+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/quodlibet/"
 "quodlibet/pt/>\n"
 "Language: pt\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.9-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 
 #: quodlibet/browsers/albums/main.py:223
 #: quodlibet/browsers/covergrid/main.py:58
@@ -236,7 +236,7 @@ msgstr "_Adicionar"
 #: quodlibet/qltk/data_editors.py:303 quodlibet/qltk/data_editors.py:316
 #: quodlibet/qltk/data_editors.py:327 quodlibet/qltk/edittags.py:554
 #: quodlibet/qltk/edittags.py:742 quodlibet/qltk/maskedbox.py:48
-#: quodlibet/qltk/maskedbox.py:88 quodlibet/qltk/queue.py:479
+#: quodlibet/qltk/maskedbox.py:88 quodlibet/qltk/queue.py:507
 #: quodlibet/qltk/scanbox.py:38 quodlibet/qltk/scanbox.py:66
 msgid "_Remove"
 msgstr "_Remover"
@@ -277,7 +277,7 @@ msgstr "_Aplicar"
 #: quodlibet/ext/songsmenu/fingerprint/search.py:281
 #: quodlibet/ext/songsmenu/fingerprint/submit.py:90
 #: quodlibet/ext/songsmenu/lastfmsync.py:203
-#: quodlibet/ext/songsmenu/playlist.py:50
+#: quodlibet/ext/songsmenu/playlist.py:55
 #: quodlibet/ext/songsmenu/replaygain.py:353
 #: quodlibet/ext/songsmenu/tapbpm.py:186 quodlibet/qltk/chooser.py:188
 #: quodlibet/qltk/chooser.py:209 quodlibet/qltk/chooser.py:233
@@ -591,7 +591,7 @@ msgstr "Selecionar _todos"
 #: quodlibet/browsers/podcasts.py:67 quodlibet/browsers/podcasts.py:69
 #: quodlibet/browsers/podcasts.py:179
 #: quodlibet/ext/songsmenu/fingerprint/search.py:46
-#: quodlibet/order/__init__.py:29 quodlibet/qltk/information.py:242
+#: quodlibet/order/__init__.py:31 quodlibet/qltk/information.py:242
 #: quodlibet/qltk/information.py:249 quodlibet/qltk/information.py:275
 #: quodlibet/qltk/pluginwin.py:53 quodlibet/qltk/wlw.py:69
 msgid "Unknown"
@@ -1783,8 +1783,8 @@ msgid ""
 "Controls the tone of your music with an equalizer.\n"
 "Click or use keys to customise levels (right-click resets the band)."
 msgstr ""
-"Controla o  tom da sua música com um equalizador.\n"
-"Use o mouse o teclado para configurar os diversos níveis (o botão direito "
+"Controla o tom da sua música com um equalizador.\n"
+"Use o rato o teclado para configurar os diversos níveis (o botão direito "
 "restaura a faixa para o valor padrão)."
 
 #: quodlibet/ext/events/equalizer.py:150
@@ -1842,7 +1842,7 @@ msgstr "Nome da predefinição:"
 #: quodlibet/ext/songsmenu/cover_download.py:386
 #: quodlibet/ext/songsmenu/fingerprint/search.py:278
 #: quodlibet/ext/songsmenu/html.py:76 quodlibet/ext/songsmenu/lastfmsync.py:204
-#: quodlibet/ext/songsmenu/playlist.py:51
+#: quodlibet/ext/songsmenu/playlist.py:56
 #: quodlibet/ext/songsmenu/replaygain.py:354
 #: quodlibet/ext/songsmenu/tapbpm.py:187 quodlibet/qltk/_editutils.py:42
 #: quodlibet/qltk/lyrics.py:32 quodlibet/qltk/msg.py:57
@@ -1987,7 +1987,7 @@ msgstr ""
 msgid "JEP-118"
 msgstr "JEP-118"
 
-#: quodlibet/ext/events/jep118.py:31
+#: quodlibet/ext/events/jep118.py:32
 #, fuzzy, python-format
 msgid "Outputs a Jabber User Tunes file to %(path)s."
 msgstr "Produz um ficheiro \"Jabber User Tunes\" em ~/.quodlibet/jabber."
@@ -3207,15 +3207,15 @@ msgstr "Comportamento"
 
 #: quodlibet/ext/events/trayicon/prefs.py:48
 msgid "Scroll wheel adjusts volume"
-msgstr "Roda do mouse ajusta volume"
+msgstr "Roda do rato ajusta volume"
 
 #: quodlibet/ext/events/trayicon/prefs.py:54
 msgid "Scroll wheel changes song"
-msgstr "Roda do mouse troca de música"
+msgstr "Roda do rato troca de música"
 
 #: quodlibet/ext/events/trayicon/prefs.py:62
 msgid "Scroll _Wheel"
-msgstr "_Roda do mouse"
+msgstr "_Roda do rato"
 
 #: quodlibet/ext/events/trayicon/prefs.py:92
 msgid "Tooltip Display"
@@ -3287,7 +3287,7 @@ msgstr "Cor de fundo:"
 
 #: quodlibet/ext/events/waveformseekbar.py:678
 msgid "Override hover color:"
-msgstr "Cor ao passar o mouse:"
+msgstr "Cor ao passar o rato:"
 
 #: quodlibet/ext/events/waveformseekbar.py:682
 msgid "Override remaining color:"
@@ -3303,9 +3303,7 @@ msgstr "Mostrar tempo"
 
 #: quodlibet/ext/events/waveformseekbar.py:698
 msgid "Seek amount when scrolling (milliseconds):"
-msgstr ""
-"Quantidade de tempo para avançar/retroceder com o roda do mouse "
-"(milissegundos)"
+msgstr "Quantidade de busca ao rolar (milissegundos):"
 
 #: quodlibet/ext/events/write_cover.py:33
 msgid "Picture Saver"
@@ -3507,7 +3505,7 @@ msgid "Exports a playlist by copying files to a folder."
 msgstr "Exporta uma lista de reprodução, copiando ficheiros para uma pasta."
 
 #: quodlibet/ext/playlist/export_to_folder.py:121
-#: quodlibet/ext/songsmenu/playlist.py:132
+#: quodlibet/ext/songsmenu/playlist.py:143
 msgid "Unable to export playlist"
 msgstr "Não foi possível exportar a lista de reprodução"
 
@@ -3895,6 +3893,19 @@ msgstr ""
 #, fuzzy
 msgid "@(saved: search-name)"
 msgstr "Consultas salvas"
+
+#: quodlibet/ext/query/unique.py:16
+msgid "Unique Query"
+msgstr ""
+
+#: quodlibet/ext/query/unique.py:17
+msgid "Filter search results by unique tags."
+msgstr ""
+
+#: quodlibet/ext/query/unique.py:19
+#, fuzzy
+msgid "@(unique: tag)"
+msgstr "único"
 
 #: quodlibet/ext/_shared/squeezebox/base.py:77
 #, python-format
@@ -4984,24 +4995,24 @@ msgid "Converts album and artist names to sort names, poorly."
 msgstr ""
 "Converte nomes de álbuns e de artistas para nomes de ordenação, porcamente."
 
-#: quodlibet/ext/songsmenu/playlist.py:31
+#: quodlibet/ext/songsmenu/playlist.py:36
 #, fuzzy
 msgid "Export as M3U / PLS Playlist File"
 msgstr "Exportar como lista de reprodução"
 
-#: quodlibet/ext/songsmenu/playlist.py:32
+#: quodlibet/ext/songsmenu/playlist.py:37
 msgid "Exports songs to an M3U or PLS playlist."
 msgstr "Exporta músicas para uma lista de reprodução em formato M3U ou PLS."
 
-#: quodlibet/ext/songsmenu/playlist.py:77
+#: quodlibet/ext/songsmenu/playlist.py:82
 msgid "Use relative paths"
 msgstr "Usar caminhos relativos"
 
-#: quodlibet/ext/songsmenu/playlist.py:77
+#: quodlibet/ext/songsmenu/playlist.py:82
 msgid "Use absolute paths"
 msgstr "Usar caminhos absolutos"
 
-#: quodlibet/ext/songsmenu/playlist.py:133
+#: quodlibet/ext/songsmenu/playlist.py:144
 #, fuzzy, python-format
 msgid "Writing to %s failed."
 msgstr "Falha ao escrever em <b>%s</b>."
@@ -5460,15 +5471,15 @@ msgstr "Mostra a ajuda"
 msgid "'%(column-id)s' is not a valid column name (%(all-column-ids)s)."
 msgstr "\"%(column-id)s\" não é um nome de coluna válido (%(all-column-ids)s)."
 
-#: quodlibet/order/__init__.py:32
+#: quodlibet/order/__init__.py:34
 msgid "_Unknown"
 msgstr "_Desconhecido"
 
-#: quodlibet/order/__init__.py:144
+#: quodlibet/order/__init__.py:149
 msgid "In Order"
 msgstr "Em ordem"
 
-#: quodlibet/order/__init__.py:145
+#: quodlibet/order/__init__.py:150
 msgid "_In Order"
 msgstr "Em _ordem"
 
@@ -5480,11 +5491,11 @@ msgstr "Aleatória"
 msgid "_Random"
 msgstr "A_leatória"
 
-#: quodlibet/order/reorder.py:40
+#: quodlibet/order/reorder.py:39
 msgid "Prefer higher rated"
 msgstr "Preferir a melhor avaliada"
 
-#: quodlibet/order/reorder.py:41
+#: quodlibet/order/reorder.py:40
 #, fuzzy
 msgid "Prefer _higher rated"
 msgstr "Preferir a melhor avaliada"
@@ -6048,7 +6059,7 @@ msgstr ""
 "Os ficheiros selecionados não dão suporte a múltiplos valores de <b>%s</b>."
 
 #. Can't add the new tag.
-#: quodlibet/qltk/edittags.py:798 quodlibet/qltk/edittags.py:979
+#: quodlibet/qltk/edittags.py:798 quodlibet/qltk/edittags.py:981
 #: quodlibet/qltk/tagsfrompath.py:211 quodlibet/util/__init__.py:511
 #: quodlibet/util/tags.py:244
 #, fuzzy
@@ -6057,7 +6068,7 @@ msgid_plural "Invalid tags"
 msgstr[0] "Etiqueta inválida"
 msgstr[1] "Etiqueta inválida"
 
-#: quodlibet/qltk/edittags.py:799 quodlibet/qltk/edittags.py:980
+#: quodlibet/qltk/edittags.py:799 quodlibet/qltk/edittags.py:982
 #: quodlibet/qltk/tagsfrompath.py:212
 #, fuzzy, python-format
 msgid ""
@@ -6077,11 +6088,11 @@ msgstr[1] ""
 "\n"
 "Os ficheiros selecionados não suportam a edição desta etiqueta."
 
-#: quodlibet/qltk/edittags.py:950 quodlibet/qltk/edittags.py:991
+#: quodlibet/qltk/edittags.py:952 quodlibet/qltk/edittags.py:995
 msgid "Invalid value"
 msgstr "Valor inválido"
 
-#: quodlibet/qltk/edittags.py:951 quodlibet/qltk/edittags.py:992
+#: quodlibet/qltk/edittags.py:953 quodlibet/qltk/edittags.py:996
 #, fuzzy, python-format
 msgid ""
 "Invalid value: %(value)s\n"
@@ -7406,39 +7417,39 @@ msgstr "Selecionar todas as músicas de todos os painéis"
 msgid "_Filter on %s"
 msgstr "_Filtrar por %s"
 
-#: quodlibet/qltk/songlist.py:1174
+#: quodlibet/qltk/songlist.py:1182
 msgid "All _Headers"
 msgstr "Todos os _cabeçalhos"
 
-#: quodlibet/qltk/songlist.py:1175
+#: quodlibet/qltk/songlist.py:1183
 msgid "_Track Headers"
 msgstr "Cabeçalhos de _faixa"
 
-#: quodlibet/qltk/songlist.py:1176
+#: quodlibet/qltk/songlist.py:1184
 msgid "_Album Headers"
 msgstr "Cabeçalhos de ál_buns"
 
-#: quodlibet/qltk/songlist.py:1177
+#: quodlibet/qltk/songlist.py:1185
 msgid "_People Headers"
 msgstr "Cabeçalhos de _pessoas"
 
-#: quodlibet/qltk/songlist.py:1178
+#: quodlibet/qltk/songlist.py:1186
 msgid "_Date Headers"
 msgstr "Cabeçalhos de _data"
 
-#: quodlibet/qltk/songlist.py:1179
+#: quodlibet/qltk/songlist.py:1187
 msgid "_File Headers"
 msgstr "Cabeçalhos de _ficheiros"
 
-#: quodlibet/qltk/songlist.py:1180
+#: quodlibet/qltk/songlist.py:1188
 msgid "_Production Headers"
 msgstr "Cabeçalhos de _produção"
 
-#: quodlibet/qltk/songlist.py:1195
+#: quodlibet/qltk/songlist.py:1203
 msgid "_Customize Headers…"
 msgstr "_Personalizar cabeçalhos…"
 
-#: quodlibet/qltk/songlist.py:1200
+#: quodlibet/qltk/songlist.py:1208
 msgid "_Expand Column"
 msgstr "_Expandir coluna"
 

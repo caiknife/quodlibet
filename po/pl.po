@@ -71,7 +71,7 @@ msgstr "Porządkowanie _według…"
 #: quodlibet/browsers/albums/main.py:254
 #: quodlibet/browsers/covergrid/main.py:91
 #: quodlibet/browsers/paned/prefs.py:202
-#: quodlibet/browsers/playlists/main.py:703 quodlibet/qltk/exfalsowindow.py:108
+#: quodlibet/browsers/playlists/main.py:702 quodlibet/qltk/exfalsowindow.py:108
 #: quodlibet/qltk/pluginwin.py:360 quodlibet/qltk/quodlibetwindow.py:922
 msgid "_Preferences"
 msgstr "_Preferencje"
@@ -643,7 +643,7 @@ msgid "Equal pane width"
 msgstr "Równa szerokość paneli"
 
 #: quodlibet/browsers/playlists/main.py:49
-#: quodlibet/browsers/playlists/main.py:633 quodlibet/qltk/pluginwin.py:37
+#: quodlibet/browsers/playlists/main.py:632 quodlibet/qltk/pluginwin.py:37
 msgid "Playlists"
 msgstr "Listy odtwarzania"
 
@@ -651,28 +651,28 @@ msgstr "Listy odtwarzania"
 msgid "_Playlists"
 msgstr "_Listy odtwarzania"
 
-#: quodlibet/browsers/playlists/main.py:167
+#: quodlibet/browsers/playlists/main.py:166
 msgid "_Remove from Playlist"
 msgstr "_Usuń z listy odtwarzania"
 
-#: quodlibet/browsers/playlists/main.py:211 quodlibet/qltk/data_editors.py:94
+#: quodlibet/browsers/playlists/main.py:210 quodlibet/qltk/data_editors.py:94
 msgid "_New"
 msgstr "_Nowe"
 
-#: quodlibet/browsers/playlists/main.py:213
+#: quodlibet/browsers/playlists/main.py:212
 #, fuzzy
 msgid "_Import…"
 msgstr "Za_importuj"
 
-#: quodlibet/browsers/playlists/main.py:470
+#: quodlibet/browsers/playlists/main.py:469
 msgid "Unable to import playlist"
 msgstr "Nie można zaimportować listy odtwarzania"
 
-#: quodlibet/browsers/playlists/main.py:471
+#: quodlibet/browsers/playlists/main.py:470
 msgid "Quod Libet can only import playlists in the M3U/M3U8 and PLS formats."
 msgstr "Można importować tylko listy odtwarzania w formatach M3U/M3U8 i PLS."
 
-#: quodlibet/browsers/playlists/main.py:513
+#: quodlibet/browsers/playlists/main.py:512
 #: quodlibet/browsers/playlists/util.py:38 quodlibet/browsers/podcasts.py:484
 #: quodlibet/qltk/delete.py:143 quodlibet/qltk/filesel.py:257
 #: quodlibet/qltk/lyrics.py:33 quodlibet/qltk/maskedbox.py:28
@@ -680,19 +680,19 @@ msgstr "Można importować tylko listy odtwarzania w formatach M3U/M3U8 i PLS.
 msgid "_Delete"
 msgstr "_Usuń"
 
-#: quodlibet/browsers/playlists/main.py:520
+#: quodlibet/browsers/playlists/main.py:519
 msgid "_Rename"
 msgstr "_Zmień nazwę"
 
-#: quodlibet/browsers/playlists/main.py:619
+#: quodlibet/browsers/playlists/main.py:618
 msgid "Unable to rename playlist"
 msgstr "Nie można zmienić nazwy listy odtwarzania"
 
-#: quodlibet/browsers/playlists/main.py:634
+#: quodlibet/browsers/playlists/main.py:633
 msgid "Import Playlist"
 msgstr "Zaimportuj listę odtwarzania"
 
-#: quodlibet/browsers/playlists/main.py:634
+#: quodlibet/browsers/playlists/main.py:633
 msgid "_Import"
 msgstr "Za_importuj"
 
@@ -1569,6 +1569,7 @@ msgstr "Zakt_ualizuj stacje"
 #: quodlibet/ext/events/auto_update_tags_in_files.py:229
 #: quodlibet/ext/events/mpris/__init__.py:51
 #: quodlibet/ext/events/themeswitcher.py:84
+#: quodlibet/ext/events/viewlyrics.py:182
 #: quodlibet/ext/gstreamer/compressor.py:100
 #: quodlibet/ext/gstreamer/crossfeed.py:137
 #: quodlibet/ext/gstreamer/karaoke.py:100 quodlibet/ext/gstreamer/pitch.py:90
@@ -2457,21 +2458,21 @@ msgid "Pauses playback while the GNOME screensaver is active."
 msgstr ""
 "Wstrzymuje odtwarzanie, kiedy wygaszacz ekranu środowiska GNOME jest aktywny."
 
-#: quodlibet/ext/events/searchprovider.py:70
+#: quodlibet/ext/events/searchprovider.py:75
 msgid "No GNOME Shell search provider for Quod Libet installed."
 msgstr ""
 "Nie zainstalowano dostawcy wyszukiwania GNOME Shell dla programu Quod Libet."
 
-#: quodlibet/ext/events/searchprovider.py:71
+#: quodlibet/ext/events/searchprovider.py:76
 #, python-format
 msgid "Have you copied the ini file to %s (or similar)?"
 msgstr ""
 
-#: quodlibet/ext/events/searchprovider.py:77
+#: quodlibet/ext/events/searchprovider.py:82
 msgid "GNOME Search Provider"
 msgstr "Dostawca wyszukiwania GNOME"
 
-#: quodlibet/ext/events/searchprovider.py:78
+#: quodlibet/ext/events/searchprovider.py:83
 msgid "Allows GNOME Shell to search the library."
 msgstr "Umożliwia GNOME Shell przeszukiwanie kolekcji."
 
@@ -3202,16 +3203,16 @@ msgstr "Przewijanie _kółkiem myszy"
 msgid "Tooltip Display"
 msgstr "Wyświetlanie podpowiedzi"
 
-#: quodlibet/ext/events/viewlyrics.py:25
+#: quodlibet/ext/events/viewlyrics.py:28
 msgid "View Lyrics"
 msgstr "Wyświetlenie tekstu utworu"
 
-#: quodlibet/ext/events/viewlyrics.py:26
+#: quodlibet/ext/events/viewlyrics.py:29
 msgid "Automatically displays tag or file-based lyrics in a sidebar."
 msgstr ""
 "Automatycznie wyświetla tekst utworu z etykiety lub pliku w panelu bocznym."
 
-#: quodlibet/ext/events/viewlyrics.py:87
+#: quodlibet/ext/events/viewlyrics.py:119
 #, python-format
 msgid ""
 "No lyrics found for\n"
@@ -3220,9 +3221,13 @@ msgstr ""
 "Nie odnaleziono tekstu dla utworu\n"
 " %s"
 
-#: quodlibet/ext/events/viewlyrics.py:117
+#: quodlibet/ext/events/viewlyrics.py:149
 msgid "No active song"
 msgstr "Brak aktywnego utworu"
+
+#: quodlibet/ext/events/viewlyrics.py:175
+msgid "Hide timestamps of .lrc or .elrc formatted lyrics"
+msgstr ""
 
 #: quodlibet/ext/events/visualisations.py:36
 msgid "Launch Visualisations"
@@ -3250,38 +3255,42 @@ msgstr "Plik wykonywalny wizualizacji:"
 msgid "Reload"
 msgstr "Wczytaj ponownie"
 
-#: quodlibet/ext/events/waveformseekbar.py:599
+#: quodlibet/ext/events/waveformseekbar.py:600
 msgid "Waveform Seek Bar"
 msgstr "Pasek przewijania w kształcie fali"
 
-#: quodlibet/ext/events/waveformseekbar.py:602
+#: quodlibet/ext/events/waveformseekbar.py:603
 #, fuzzy
 msgid "∿ A seekbar in the shape of the waveform of the current song."
 msgstr "Pasek przewijania w kształcie fali obecnego utworu."
 
-#: quodlibet/ext/events/waveformseekbar.py:671
+#: quodlibet/ext/events/waveformseekbar.py:678
 msgid "Override foreground color:"
 msgstr "Zastąpienie koloru czcionki:"
 
-#: quodlibet/ext/events/waveformseekbar.py:675
+#: quodlibet/ext/events/waveformseekbar.py:682
 msgid "Override hover color:"
 msgstr "Zastąpienie koloru najechania:"
 
-#: quodlibet/ext/events/waveformseekbar.py:679
+#: quodlibet/ext/events/waveformseekbar.py:686
 msgid "Override remaining color:"
 msgstr "Zastąpienie koloru pozostałych:"
 
-#: quodlibet/ext/events/waveformseekbar.py:683
+#: quodlibet/ext/events/waveformseekbar.py:690
 msgid "Show current position"
 msgstr "Obecne położenie"
 
-#: quodlibet/ext/events/waveformseekbar.py:688
+#: quodlibet/ext/events/waveformseekbar.py:695
 msgid "Show time labels"
 msgstr "Etykiety czasu"
 
-#: quodlibet/ext/events/waveformseekbar.py:695
+#: quodlibet/ext/events/waveformseekbar.py:702
 msgid "Seek amount when scrolling (milliseconds):"
 msgstr "O ile przewijać podczas przewijania myszą (w milisekundach):"
+
+#: quodlibet/ext/events/waveformseekbar.py:715
+msgid "Waveform height (pixels):"
+msgstr ""
 
 #: quodlibet/ext/events/write_cover.py:33
 msgid "Picture Saver"
@@ -3620,22 +3629,27 @@ msgstr "Podążanie za kursorem"
 msgid "_Follow cursor"
 msgstr "Podążanie za kursorem"
 
-#: quodlibet/ext/playorder/playcounteq.py:21
+#: quodlibet/ext/playorder/playcounteq.py:24
 msgid "Playcount Equalizer"
 msgstr "Wyrównywanie liczby odtworzeń"
 
-#: quodlibet/ext/playorder/playcounteq.py:22
+#: quodlibet/ext/playorder/playcounteq.py:25
 #, fuzzy
 msgid "Adds a shuffle mode that prefers songs with fewer total plays."
 msgstr "Losuje kolejność, preferując utwory z mniejszą liczbą odtworzeń."
 
-#: quodlibet/ext/playorder/playcounteq.py:25
+#: quodlibet/ext/playorder/playcounteq.py:28
 msgid "Prefer less played"
 msgstr "Preferowanie rzadziej odtwarzanych"
 
-#: quodlibet/ext/playorder/playcounteq.py:26
+#: quodlibet/ext/playorder/playcounteq.py:29
 #, fuzzy
 msgid "Prefer _less played"
+msgstr "Preferowanie rzadziej odtwarzanych"
+
+#: quodlibet/ext/playorder/playcounteq.py:77
+#, fuzzy
+msgid "Priority for less played tracks"
 msgstr "Preferowanie rzadziej odtwarzanych"
 
 #: quodlibet/ext/playorder/queue.py:23
@@ -8230,7 +8244,12 @@ msgstr "Odtwarzacz muzyki"
 msgid "Listen to, browse, or edit your audio collection"
 msgstr "Słuchanie, przeglądanie i modyfikowanie kolekcji muzycznej"
 
-#: data/io.github.quodlibet.ExFalso.appdata.xml.in:17
+#: data/io.github.quodlibet.ExFalso.appdata.xml.in:9
+#: data/io.github.quodlibet.QuodLibet.appdata.xml.in:9
+msgid "The Quod Libet Development Team"
+msgstr ""
+
+#: data/io.github.quodlibet.ExFalso.appdata.xml.in:18
 msgid ""
 "Ex Falso is a tag editor with the same tag editing interface as Quod Libet. "
 "It lets you display and edit any tags you want in the file, for all the file "
@@ -8241,8 +8260,8 @@ msgstr ""
 "wszystkich etykiet w plikach muzycznych, we wszystkich obsługiwanych "
 "formatach."
 
-#: data/io.github.quodlibet.ExFalso.appdata.xml.in:22
-#: data/io.github.quodlibet.QuodLibet.appdata.xml.in:24
+#: data/io.github.quodlibet.ExFalso.appdata.xml.in:23
+#: data/io.github.quodlibet.QuodLibet.appdata.xml.in:25
 msgid ""
 "Supported file formats include Ogg Vorbis/Opus/Speex/FLAC, MP3, FLAC, MOD/XM/"
 "IT, Musepack, Wavpack, MPEG-4 AAC, Monkeys Audio, WMA, SPC, MIDI."
@@ -8250,7 +8269,7 @@ msgstr ""
 "Obsługiwane formaty plików: Ogg Vorbis/Opus/Speex/FLAC, MP3, FLAC, MOD/XM/"
 "IT, MusePack, WavPack, MPEG-4 AAC, Monkey’s Audio, WMA, SPC, MIDI."
 
-#: data/io.github.quodlibet.QuodLibet.appdata.xml.in:18
+#: data/io.github.quodlibet.QuodLibet.appdata.xml.in:19
 msgid ""
 "Quod Libet is a music management program. It provides several different ways "
 "to view your audio library, as well as support for Internet radio and audio "
